@@ -39,7 +39,7 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
     int defaultMaxLatency = 50000;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {       
+    public void execute() throws MojoExecutionException{
         String baseDir = project.getBasedir().getAbsolutePath();
         String jmxAbsolutePath = (jmxPath.startsWith(baseDir)) ? Paths.get(jmxPath).toString() :  Paths.get(baseDir, jmxPath).toString(); // (jmx=absolute)? jmx : absolutePath(jmx)
 

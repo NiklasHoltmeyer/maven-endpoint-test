@@ -7,7 +7,7 @@
 
   <groupId>com.github.NiklasHoltmeyer</groupId>
   <artifactId>maven-jmeter-test</artifactId>
-  <version>1.0.0e</version>
+  <version>1.0.1</version>
   <packaging>maven-plugin</packaging>
 
   <name>maven-jmeter-test Maven Plugin</name>
