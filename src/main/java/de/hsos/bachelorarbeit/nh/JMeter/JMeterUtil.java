@@ -256,12 +256,12 @@ public class JMeterUtil {
                 "          </elementProp>\n" +
                 "          <elementProp name=\"HOST\" elementType=\"Argument\">\n" +
                 "            <stringProp name=\"Argument.name\">HOST</stringProp>\n" +
-                "            <stringProp name=\"Argument.value\">${__P(HOST,&quot;"+this.defaultHost+"&quot;)}</stringProp>\n" +
+                "            <stringProp name=\"Argument.value\">${__P(HOST,"+this.defaultHost+")}</stringProp>\n" +
                 "            <stringProp name=\"Argument.metadata\">=</stringProp>\n" +
                 "          </elementProp>\n" +
                 "          <elementProp name=\"PORT\" elementType=\"Argument\">\n" +
                 "            <stringProp name=\"Argument.name\">PORT</stringProp>\n" +
-                "            <stringProp name=\"Argument.value\">${__P(PORT,&quot;"+this.defaultPort+"&quot;)}</stringProp>\n" +
+                "            <stringProp name=\"Argument.value\">${__P(PORT,"+this.defaultPort+")}</stringProp>\n" +
                 "            <stringProp name=\"Argument.metadata\">=</stringProp>\n" +
                 "          </elementProp>\n" +
                 "          <elementProp name=\"aggregateReport\" elementType=\"Argument\">\n" +
