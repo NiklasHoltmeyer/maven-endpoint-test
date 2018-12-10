@@ -3,6 +3,7 @@ package de.hsos.bachelorarbeit.nh.JMeter;
 import de.hsos.bachelorarbeit.nh.Endpoint.RESTEndpoint;
 import de.hsos.bachelorarbeit.nh.Endpoint.Request;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTest;
+import de.hsos.bachelorarbeit.nh.jmeter.annotation.JSONAssertion;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -335,10 +336,28 @@ public class JMeterUtil {
         this.addReponseAssertion(stringBuilder, endpointTest.httpStatus());
         this.addLatencyAssertion(stringBuilder, "${MAXLATENCY}");
         this.addSizeAssertion(stringBuilder, 100);
+        this.addJsonAssertion(stringBuilder, endpointTest);
         return stringBuilder.append("      </hashTree>\n");
     }
 
-    private StringBuilder addReponseAssertion(StringBuilder stringBuilder, int statusCode){
+    private StringBuilder addJsonAssertion(StringBuilder stringBuilder, EndpointTest endpointTest){
+        JSONAssertion[] assertions = endpointTest.jsonAssertions();
+        for(int i = 0; i<assertions.length; ++i){
+            stringBuilder.append("          <JSONPathAssertion guiclass=\"JSONPathAssertionGui\" testclass=\"JSONPathAssertion\" testname=\"JSON Assertion ("+i+")\" enabled=\"true\">\n" +
+                    "            <stringProp name=\"JSON_PATH\">"+assertions[i].path()+"</stringProp>\n" +
+                    "            <stringProp name=\"EXPECTED_VALUE\">"+assertions[i].expectedValue().replace("\"", "&quot;")+"</stringProp>\n" +
+                    "            <boolProp name=\"JSONVALIDATION\">true</boolProp>\n" +
+                    "            <boolProp name=\"EXPECT_NULL\">false</boolProp>\n" +
+                    "            <boolProp name=\"INVERT\">false</boolProp>\n" +
+                    "            <boolProp name=\"ISREGEX\">false</boolProp>\n" +
+                    "          </JSONPathAssertion>\n" +
+                    "          <hashTree/>\n");
+        }
+        return stringBuilder;
+    }
+
+
+        private StringBuilder addReponseAssertion(StringBuilder stringBuilder, int statusCode){
         return stringBuilder.append("        <hashTree>\n" +
                 "          <ResponseAssertion guiclass=\"AssertionGui\" testclass=\"ResponseAssertion\" testname=\"Response Assertion\" enabled=\"true\">\n" +
                 "            <collectionProp name=\"Asserion.test_strings\">\n" +

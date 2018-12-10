@@ -78,4 +78,5 @@ public class SpringEndpointUTIL extends EndpointUTIL {
         String joinPath = this.joinPath(splitedPath, restEndpoint.getEndpointTest().parameters());
         return new Request(joinPath, restEndpoint);
     }
+
 }
