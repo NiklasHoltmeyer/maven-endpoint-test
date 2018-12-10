@@ -1,5 +1,9 @@
 package de.hsos.bachelorarbeit.nh;
 
+import de.hsos.bachelorarbeit.nh.Endpoint.EndpointUTIL;
+import de.hsos.bachelorarbeit.nh.Endpoint.SpringEndpointUTIL;
+import de.hsos.bachelorarbeit.nh.Endpoint.Request;
+import de.hsos.bachelorarbeit.nh.JMeter.JMeterUtil;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -14,7 +18,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.List;
 
-@Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, threadSafe = true)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, threadSafe = true)
 public class JMeterGenerateTestMojo extends AbstractMojo {
     @Parameter(required = true, readonly =  true)
     private String jmxPath;
@@ -25,8 +29,14 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}")
     private MavenProject project;
 
-    @Parameter(defaultValue = "0", required = true)
-    private int minimumCoverage;
+    @Parameter(readonly =  true)
+    String testName;
+    @Parameter(readonly =  true, defaultValue = "localhost")
+    String defaultHost;
+    @Parameter(readonly =  true, defaultValue = "8080")
+    int defaultPort;
+    @Parameter(readonly =  true, defaultValue = "5000")
+    int defaultMaxLatency = 50000;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {       
@@ -34,45 +44,31 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
         String jmxAbsolutePath = (jmxPath.startsWith(baseDir)) ? Paths.get(jmxPath).toString() :  Paths.get(baseDir, jmxPath).toString(); // (jmx=absolute)? jmx : absolutePath(jmx)
 
         Thread.currentThread().setContextClassLoader(getClassLoader());
-        /*
-        try {
-            Coverage coverage = new Coverage(getLog(), basePackages, jmxAbsolutePath);
-            CoverageResult coverageResult = coverage.loadResult();
-            int threshHold = minimumCoverage < 1? minimumCoverage*100 : minimumCoverage; //range 0 - 100
-            boolean result = coverageResult.buildSuccessful(threshHold);
-            if(result){
-                getLog().info("***********************************");
-                getLog().info("***** J-Meter Test Coverage! ******");
-                getLog().info("***********************************");
-                getLog().info(coverageResult.toString());            
-                getLog().info("minimumCoverage: " + threshHold);
-                getLog().info("Actual: " + coverageResult.getCoverage());            
-                getLog().info("***********************************");
-                getLog().info("**** J-Meter Coverage-Success! ****");
-                getLog().info("***********************************");
-            }else{
-                getLog().error("***********************************");
-                getLog().error("***** J-Meter Test Coverage! ******");
-                getLog().error("***********************************");
-                getLog().error("***********************************");
-                getLog().error("basePackages:    " + basePackages);
-                getLog().error("jmxAbsolutePath: " + jmxAbsolutePath);
-                getLog().error("***********************************");                
-                getLog().error(coverageResult.toString());            
-                getLog().error("minimumCoverage: " + threshHold);
-                getLog().error("Actual: " + coverageResult.getCoverage());            
-                getLog().error("***********************************");
-                getLog().error("**** J-Meter Coverage-Failed! *****");
-                getLog().error("***********************************");
-            }
 
-            if(!result){
-                throw new Exception("Target Coverage: " + threshHold + "%, Actual: " + coverageResult.getCoverage());
+        EndpointUTIL endpointUTIL = new SpringEndpointUTIL();
+        List<Request> requests = endpointUTIL.getRequests(basePackages);
+        String _testName = (testName!=null) ? testName :  project.getName();
+        JMeterUtil jMeterUtil = new JMeterUtil(requests, _testName, defaultHost, defaultPort, defaultMaxLatency);
+
+        try {
+            jMeterUtil.createTests(jmxAbsolutePath);
+            getLog().info("***********************************");
+            getLog().info("***** J-Meter Test Generated! ******");
+            getLog().info("***********************************");
+            getLog().info("Test(s) generated: " + requests.size());
+            getLog().info("***********************************");
+
+            if(requests.size()<=0){
+                getLog().info("Basepackages: " + basePackages.toString());
+                getLog().info("_testName: " + _testName);
             }
         } catch (Exception e) {
+            getLog().error("******************************************");
+            getLog().error("***** J-Meter Test Generated failed! ******");
+            getLog().error("******************************************");
             throw new MojoExecutionException(e.toString());
         }
-        */
+
     }
 
     private ClassLoader getClassLoader() throws MojoExecutionException

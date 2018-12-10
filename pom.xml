@@ -71,12 +71,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.maven.plugin-testing</groupId>
       <artifactId>maven-plugin-testing-harness</artifactId>
       <version>3.3.0</version>
@@ -148,7 +142,7 @@
           <version>3.5.1</version>
           <executions>
             <execution>
-              <id>build-jmx</id>
+              <id>jmeter</id>
               <goals>
                 <goal>descriptor</goal>
               </goals>
@@ -185,7 +179,7 @@
         <configuration>
           <!-- <goalPrefix>maven-archetype-plugin</goalPrefix> -->
           <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-          <goalPrefix>build-jmx</goalPrefix>
+          <goalPrefix>jmeter</goalPrefix>
         </configuration>
         <executions>
           <execution>
