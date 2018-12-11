@@ -8,7 +8,7 @@
   <groupId>com.github.NiklasHoltmeyer</groupId>
   <artifactId>maven-jmeter-test</artifactId>
 
-  <version>1.0.2a</version>
+  <version>1.0.2x123</version>
   <packaging>maven-plugin</packaging>
 
   <name>maven-jmeter-test Maven Plugin</name>
@@ -118,7 +118,7 @@
     <dependency>
       <groupId>com.github.NiklasHoltmeyer</groupId>
       <artifactId>maven-jmeter-test-annotations</artifactId>
-      <version>1.0.2</version>
+      <version>1.0.2x123</version>
     </dependency>
 
   </dependencies>

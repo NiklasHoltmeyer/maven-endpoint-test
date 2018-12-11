@@ -292,8 +292,8 @@ public class JMeterUtil {
     }
 
     private int orderRequestByPriority(Request l, Request r){
-        int _l = l.getRestEndpoint().getEndpointTest().priority();
-        int _r = r.getRestEndpoint().getEndpointTest().priority();
+        int _l = l.getRestEndpoint().getEndpointTest().order();
+        int _r = r.getRestEndpoint().getEndpointTest().order();
         return _l - _r;
 
     }
@@ -324,7 +324,7 @@ public class JMeterUtil {
     }
 
     private StringBuilder createHTTPSampler(StringBuilder stringBuilder, Request request){
-        this.log.info("Prio: " + request.getRestEndpoint().getEndpointTest().priority());
+        this.log.info("Prio: " + request.getRestEndpoint().getEndpointTest().order());
         RESTEndpoint restEndpoint = request.getRestEndpoint();
         EndpointTest endpointTest = restEndpoint.getEndpointTest();
         stringBuilder.append("        <HTTPSamplerProxy guiclass=\"HttpTestSampleGui\" testclass=\"HTTPSamplerProxy\" testname=\""+request.getPath()+"\" enabled=\"true\">\n" +
