@@ -6,7 +6,7 @@
     <groupId>com.github.NiklasHoltmeyer</groupId>
     <artifactId>maven-jmeter-test</artifactId>
 
-    <version>3.2.1</version>
+    <version>3.2.1b</version>
     <packaging>maven-plugin</packaging>
 
     <name>maven-jmeter-test Maven Plugin</name>
@@ -22,7 +22,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.version>3.3.9</maven.version>
-        <annotations.version>3.2.1</annotations.version>
+        <annotations.version>3.2.2</annotations.version>
     </properties>
 
     <repositories>

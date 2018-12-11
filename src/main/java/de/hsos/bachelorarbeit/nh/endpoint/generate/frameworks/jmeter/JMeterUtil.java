@@ -324,9 +324,9 @@ public class JMeterUtil {
         RESTEndpoint restEndpoint = request.getRestEndpoint();
         EndpointTest endpointTest = restEndpoint.getEndpointTest();
         stringBuilder.append("        <HTTPSamplerProxy guiclass=\"HttpTestSampleGui\" testclass=\"HTTPSamplerProxy\" testname=\""+request.getPath()+"\" enabled=\"true\">\n" +
-                "          <elementProp name=\"HTTPsampler.Arguments\" elementType=\"Arguments\" guiclass=\"HTTPArgumentsPanel\" testclass=\"Arguments\" testname=\"User Defined Variables\" enabled=\"true\">\n" +
-                "            <collectionProp name=\"Arguments.arguments\"/>\n" +
-                "          </elementProp>\n" +
+                "          <elementProp name=\"HTTPsampler.Arguments\" elementType=\"Arguments\" guiclass=\"HTTPArgumentsPanel\" testclass=\"Arguments\" testname=\"User Defined Variables\" enabled=\"true\">\n");
+        this.addPayLoad(stringBuilder, endpointTest.payLoad())
+                .append("          </elementProp>\n" +
                 "          <stringProp name=\"HTTPSampler.domain\">${HOST}</stringProp>\n" +
                 "          <stringProp name=\"HTTPSampler.port\">${PORT}</stringProp>\n" +
                 "          <stringProp name=\"HTTPSampler.protocol\"></stringProp>\n" +
@@ -343,6 +343,17 @@ public class JMeterUtil {
                 "          <stringProp name=\"TestPlan.comments\">"+restEndpoint.getPath()+"</stringProp>\n" +
                 "        </HTTPSamplerProxy>\n");
         return this.addAssertions(stringBuilder, endpointTest);
+    }
+
+    private StringBuilder addPayLoad(StringBuilder stringBuilder, String payLoad){
+        return (payLoad.isEmpty())? stringBuilder.append("            <collectionProp name=\"Arguments.arguments\"/>\n" ):
+                                    stringBuilder.append("            <collectionProp name=\"Arguments.arguments\">\n" +
+                                            "              <elementProp name=\"\" elementType=\"HTTPArgument\">\n" +
+                                            "                <boolProp name=\"HTTPArgument.always_encode\">false</boolProp>\n" +
+                                            "                <stringProp name=\"Argument.value\">"+payLoad.replace("\"", "&quot;")+"</stringProp>\n" +
+                                            "                <stringProp name=\"Argument.metadata\">=</stringProp>\n" +
+                                            "              </elementProp>\n" +
+                                            "            </collectionProp>");
     }
 
     private StringBuilder addAssertions(StringBuilder stringBuilder, EndpointTest endpointTest){
