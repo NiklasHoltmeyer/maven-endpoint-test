@@ -1,6 +1,9 @@
-package de.hsos.bachelorarbeit.nh.Endpoint;
+package de.hsos.bachelorarbeit.endpoint.generate.frameworks.spring;
 
 
+import de.hsos.bachelorarbeit.endpoint.generate.entities.RESTEndpoint;
+import de.hsos.bachelorarbeit.endpoint.generate.entities.Request;
+import de.hsos.bachelorarbeit.endpoint.generate.usecases.getRequests.EndpointUTIL;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTest;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.Parameter;
 import org.reflections.Reflections;

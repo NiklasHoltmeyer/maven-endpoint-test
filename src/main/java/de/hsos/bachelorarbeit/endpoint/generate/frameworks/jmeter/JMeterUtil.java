@@ -1,7 +1,7 @@
-package de.hsos.bachelorarbeit.nh.JMeter;
+package de.hsos.bachelorarbeit.endpoint.generate.frameworks.jmeter;
 
-import de.hsos.bachelorarbeit.nh.Endpoint.RESTEndpoint;
-import de.hsos.bachelorarbeit.nh.Endpoint.Request;
+import de.hsos.bachelorarbeit.endpoint.generate.entities.RESTEndpoint;
+import de.hsos.bachelorarbeit.endpoint.generate.entities.Request;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTest;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.JSONAssertion;
 import org.apache.maven.plugin.logging.Log;
@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 public class JMeterUtil {
     Map<String, List<Request>> groupedRequests;
     String testName;
-    String defaultHost = "docker";
-    int defaultPort = 8079;
-    int defaultMaxLatency = 50000;
+    String defaultHost;
+    int defaultPort;
+    int defaultMaxLatency;
     Log log;
 
     public JMeterUtil(Log log, List<Request> requests, String testName, String defaultHost, int defaultPort, int defaultMaxLatency) {
@@ -39,10 +39,7 @@ public class JMeterUtil {
     public void createTests(String destination) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         this.addFileHeader(stringBuilder, testName);
-        this.groupedRequests.keySet().stream().forEach(x->{
-            log.info("Thread-Group: " + x);
-            this.createThreadGroup(stringBuilder, x);
-        });
+        this.groupedRequests.keySet().stream().forEach(x-> this.createThreadGroup(stringBuilder, x));
         this.addReports(stringBuilder);
         this.addFileFooter(stringBuilder);
         this.writeFile(stringBuilder, destination);
@@ -324,7 +321,6 @@ public class JMeterUtil {
     }
 
     private StringBuilder createHTTPSampler(StringBuilder stringBuilder, Request request){
-        this.log.info("Prio: " + request.getRestEndpoint().getEndpointTest().order());
         RESTEndpoint restEndpoint = request.getRestEndpoint();
         EndpointTest endpointTest = restEndpoint.getEndpointTest();
         stringBuilder.append("        <HTTPSamplerProxy guiclass=\"HttpTestSampleGui\" testclass=\"HTTPSamplerProxy\" testname=\""+request.getPath()+"\" enabled=\"true\">\n" +

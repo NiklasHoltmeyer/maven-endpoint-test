@@ -1,6 +1,4 @@
-package de.hsos.bachelorarbeit.nh.Endpoint;
-
-import de.hsos.bachelorarbeit.nh.Endpoint.RESTEndpoint;
+package de.hsos.bachelorarbeit.endpoint.generate.entities;
 
 public class Request {
     String path;

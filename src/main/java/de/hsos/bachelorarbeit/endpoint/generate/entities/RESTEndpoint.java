@@ -1,4 +1,4 @@
-package de.hsos.bachelorarbeit.nh.Endpoint;
+package de.hsos.bachelorarbeit.endpoint.generate.entities;
 
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTest;
 

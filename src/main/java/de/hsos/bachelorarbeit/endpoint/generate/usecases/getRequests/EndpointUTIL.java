@@ -1,4 +1,7 @@
-package de.hsos.bachelorarbeit.nh.Endpoint;
+package de.hsos.bachelorarbeit.endpoint.generate.usecases.getRequests;
+
+import de.hsos.bachelorarbeit.endpoint.generate.entities.RESTEndpoint;
+import de.hsos.bachelorarbeit.endpoint.generate.entities.Request;
 
 import java.util.List;
 import java.util.Set;

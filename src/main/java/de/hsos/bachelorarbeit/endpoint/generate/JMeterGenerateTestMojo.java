@@ -1,20 +1,17 @@
-package de.hsos.bachelorarbeit.nh;
+package de.hsos.bachelorarbeit.endpoint.generate;
 
-import de.hsos.bachelorarbeit.nh.Endpoint.EndpointUTIL;
-import de.hsos.bachelorarbeit.nh.Endpoint.SpringEndpointUTIL;
-import de.hsos.bachelorarbeit.nh.Endpoint.Request;
-import de.hsos.bachelorarbeit.nh.JMeter.JMeterUtil;
+import de.hsos.bachelorarbeit.endpoint.generate.usecases.getRequests.EndpointUTIL;
+import de.hsos.bachelorarbeit.endpoint.generate.frameworks.spring.SpringEndpointUTIL;
+import de.hsos.bachelorarbeit.endpoint.generate.frameworks.jmeter.JMeterUtil;
+import de.hsos.bachelorarbeit.endpoint.generate.entities.Request;
+import de.hsos.bachelorarbeit.endpoint.util.ClassLoaderLoader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -43,7 +40,7 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
         String baseDir = project.getBasedir().getAbsolutePath();
         String jmxAbsolutePath = (jmxPath.startsWith(baseDir)) ? Paths.get(jmxPath).toString() :  Paths.get(baseDir, jmxPath).toString(); // (jmx=absolute)? jmx : absolutePath(jmx)
 
-        Thread.currentThread().setContextClassLoader(getClassLoader());
+        Thread.currentThread().setContextClassLoader(new ClassLoaderLoader().getClassLoader(project));
 
         EndpointUTIL endpointUTIL = new SpringEndpointUTIL();
         List<Request> requests = endpointUTIL.getRequests(basePackages);
@@ -70,27 +67,4 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
         }
 
     }
-
-    private ClassLoader getClassLoader() throws MojoExecutionException
-    {
-        //Quelle: https://stackoverflow.com/a/13220011/5026265
-        try
-        {
-            List<String> classpathElements = project.getCompileClasspathElements();
-            classpathElements.add(project.getBuild().getOutputDirectory() );
-            classpathElements.add(project.getBuild().getTestOutputDirectory() );
-            URL urls[] = new URL[classpathElements.size()];
-
-            for ( int i = 0; i < classpathElements.size(); ++i )
-            {
-                urls[i] = new File( (String) classpathElements.get( i ) ).toURI().toURL();
-            }
-            return new URLClassLoader(urls, getClass().getClassLoader() );
-        }
-        catch (Exception e)//gotta catch em all
-        {
-            throw new MojoExecutionException("Couldn't create a classloader.", e);
-        }
-    }
-
 }
