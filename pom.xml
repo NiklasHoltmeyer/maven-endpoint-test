@@ -5,9 +5,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.github.NiklasHoltmeyer</groupId>
+  <groupId>com.github.NiklasHoltmeyer.local</groupId>
   <artifactId>maven-jmeter-test</artifactId>
-  <version>1.0.1a</version>
+
+  <version>1.0.2</version>
   <packaging>maven-plugin</packaging>
 
   <name>maven-jmeter-test Maven Plugin</name>
@@ -117,7 +118,7 @@
     <dependency>
       <groupId>com.github.NiklasHoltmeyer</groupId>
       <artifactId>maven-jmeter-test-annotations</artifactId>
-      <version>1.0.0d</version>
+      <version>1.0.2</version>
     </dependency>
 
   </dependencies>

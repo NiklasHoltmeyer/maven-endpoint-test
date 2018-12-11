@@ -4,6 +4,7 @@ import de.hsos.bachelorarbeit.nh.Endpoint.RESTEndpoint;
 import de.hsos.bachelorarbeit.nh.Endpoint.Request;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTest;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.JSONAssertion;
+import org.apache.maven.plugin.logging.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,8 +21,10 @@ public class JMeterUtil {
     String defaultHost = "docker";
     int defaultPort = 8079;
     int defaultMaxLatency = 50000;
+    Log log;
 
-    public JMeterUtil(List<Request> requests, String testName, String defaultHost, int defaultPort, int defaultMaxLatency) {
+    public JMeterUtil(Log log, List<Request> requests, String testName, String defaultHost, int defaultPort, int defaultMaxLatency) {
+        this.log=log;
         this.groupedRequests=requests.stream()
                 .collect(Collectors.groupingBy(x-> "T: " + x.getRestEndpoint().getEndpointTest().threads() +
                         ", L: " + x.getRestEndpoint().getEndpointTest().loops() +
@@ -36,7 +39,10 @@ public class JMeterUtil {
     public void createTests(String destination) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         this.addFileHeader(stringBuilder, testName);
-        this.groupedRequests.keySet().stream().forEach(x->this.createThreadGroup(stringBuilder, x));
+        this.groupedRequests.keySet().stream().forEach(x->{
+            log.info("Thread-Group: " + x);
+            this.createThreadGroup(stringBuilder, x);
+        });
         this.addReports(stringBuilder);
         this.addFileFooter(stringBuilder);
         this.writeFile(stringBuilder, destination);
@@ -285,8 +291,18 @@ public class JMeterUtil {
                 "</jmeterTestPlan>\n");
     }
 
+    private int orderRequestByPriority(Request l, Request r){
+        int _l = l.getRestEndpoint().getEndpointTest().priority();
+        int _r = r.getRestEndpoint().getEndpointTest().priority();
+        return _l - _r;
+
+    }
+
     private StringBuilder createThreadGroup(StringBuilder stringBuilder, String groupKey){
-        List<Request> requests = this.groupedRequests.get(groupKey);
+        List<Request> requests = this.groupedRequests.get(groupKey).stream()
+                .sorted(this::orderRequestByPriority)
+                .collect(Collectors.toList());
+
         EndpointTest threadGroupInfo = requests.get(0).getRestEndpoint().getEndpointTest();
         stringBuilder.append("      <ThreadGroup guiclass=\"ThreadGroupGui\" testclass=\"ThreadGroup\" testname=\""+groupKey+"\" enabled=\"true\">\n" +
                 "        <stringProp name=\"ThreadGroup.on_sample_error\">stoptest</stringProp>\n" +
@@ -308,6 +324,7 @@ public class JMeterUtil {
     }
 
     private StringBuilder createHTTPSampler(StringBuilder stringBuilder, Request request){
+        this.log.info("Prio: " + request.getRestEndpoint().getEndpointTest().priority());
         RESTEndpoint restEndpoint = request.getRestEndpoint();
         EndpointTest endpointTest = restEndpoint.getEndpointTest();
         stringBuilder.append("        <HTTPSamplerProxy guiclass=\"HttpTestSampleGui\" testclass=\"HTTPSamplerProxy\" testname=\""+request.getPath()+"\" enabled=\"true\">\n" +

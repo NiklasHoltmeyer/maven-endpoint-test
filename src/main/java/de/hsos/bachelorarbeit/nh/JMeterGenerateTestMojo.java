@@ -48,7 +48,7 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
         EndpointUTIL endpointUTIL = new SpringEndpointUTIL();
         List<Request> requests = endpointUTIL.getRequests(basePackages);
         String _testName = (testName!=null) ? testName :  project.getName();
-        JMeterUtil jMeterUtil = new JMeterUtil(requests, _testName, defaultHost, defaultPort, defaultMaxLatency);
+        JMeterUtil jMeterUtil = new JMeterUtil(getLog(), requests, _testName, defaultHost, defaultPort, defaultMaxLatency);
 
         try {
             jMeterUtil.createTests(jmxAbsolutePath);
