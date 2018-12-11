@@ -6,7 +6,10 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-
+maven-jmeter-test.iml
+.idea/*
+.idea/
+.idea
 # eclipse git ignore
 # https://github.com/github/gitignore/blob/master/Global/Eclipse.gitignore
 .metadata
@@ -135,3 +138,4 @@ fabric.properties
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
+/maven-jmeter-test.iml
