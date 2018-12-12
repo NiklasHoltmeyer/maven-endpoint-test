@@ -5,8 +5,11 @@
 
     <groupId>com.github.NiklasHoltmeyer</groupId>
     <artifactId>maven-jmeter-test</artifactId>
-
-    <version>3.2.1b</version>
+    <!--
+    <groupId>dev.local.test</groupId>
+    <artifactId>local.test</artifactId>
+-->
+    <version>3.2.3</version>
     <packaging>maven-plugin</packaging>
 
     <name>maven-jmeter-test Maven Plugin</name>
@@ -22,7 +25,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.version>3.3.9</maven.version>
-        <annotations.version>3.2.2</annotations.version>
+        <annotations.version>3.2.3</annotations.version>
     </properties>
 
     <repositories>
@@ -124,6 +127,11 @@
             <groupId>com.github.NiklasHoltmeyer</groupId>
             <artifactId>maven-jmeter-test-annotations</artifactId>
             <version>${annotations.version}</version>
+            <!--
+            <groupId>dev.local.test</groupId>
+            <artifactId>local.annos</artifactId>
+            <version>3.2.2x</version>
+            -->
         </dependency>
     </dependencies>
 

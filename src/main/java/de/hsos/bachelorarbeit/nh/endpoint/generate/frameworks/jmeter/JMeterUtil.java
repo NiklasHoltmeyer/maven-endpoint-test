@@ -3,7 +3,10 @@ package de.hsos.bachelorarbeit.nh.endpoint.generate.frameworks.jmeter;
 import de.hsos.bachelorarbeit.nh.endpoint.generate.entities.RESTEndpoint;
 import de.hsos.bachelorarbeit.nh.endpoint.generate.entities.Request;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTest;
-import de.hsos.bachelorarbeit.nh.jmeter.annotation.JSONAssertion;
+import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Assertions.JSON.JSONAssertion;
+import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Assertions.Response.ResponseAssertion;
+import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Assertions.Size.SizeAssertion;
+import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Response;
 import org.apache.maven.plugin.logging.Log;
 
 import java.io.BufferedWriter;
@@ -26,9 +29,9 @@ public class JMeterUtil {
     public JMeterUtil(Log log, List<Request> requests, String testName, String defaultHost, int defaultPort, int defaultMaxLatency) {
         this.log=log;
         this.groupedRequests=requests.stream()
-                .collect(Collectors.groupingBy(x-> "T: " + x.getRestEndpoint().getEndpointTest().threads() +
-                        ", L: " + x.getRestEndpoint().getEndpointTest().loops() +
-                        ", RUT: " + x.getRestEndpoint().getEndpointTest().rampUpTime()));
+                .collect(Collectors.groupingBy(x-> "T: " + x.getRestEndpoint().getEndpointTest().request().threadProperties().threads() +
+                        ", L: " + x.getRestEndpoint().getEndpointTest().request().threadProperties().loops() +
+                        ", RUT: " + x.getRestEndpoint().getEndpointTest().request().threadProperties().rampUpTime()));
 
         this.defaultHost=defaultHost;
         this.defaultPort=defaultPort;
@@ -305,10 +308,10 @@ public class JMeterUtil {
                 "        <stringProp name=\"ThreadGroup.on_sample_error\">stoptest</stringProp>\n" +
                 "        <elementProp name=\"ThreadGroup.main_controller\" elementType=\"LoopController\" guiclass=\"LoopControlPanel\" testclass=\"LoopController\" testname=\"Loop Controller\" enabled=\"true\">\n" +
                 "          <boolProp name=\"LoopController.continue_forever\">false</boolProp>\n" +
-                "          <stringProp name=\"LoopController.loops\">"+threadGroupInfo.loops()+"</stringProp>\n" +
+                "          <stringProp name=\"LoopController.loops\">"+threadGroupInfo.request().threadProperties().loops()+"</stringProp>\n" +
                 "        </elementProp>\n" +
-                "        <stringProp name=\"ThreadGroup.num_threads\">"+threadGroupInfo.threads()+"</stringProp>\n" +
-                "        <stringProp name=\"ThreadGroup.ramp_time\">"+threadGroupInfo.rampUpTime()+"</stringProp>\n" +
+                "        <stringProp name=\"ThreadGroup.num_threads\">"+threadGroupInfo.request().threadProperties().threads()+"</stringProp>\n" +
+                "        <stringProp name=\"ThreadGroup.ramp_time\">"+threadGroupInfo.request().threadProperties().rampUpTime()+"</stringProp>\n" +
                 "        <boolProp name=\"ThreadGroup.scheduler\">false</boolProp>\n" +
                 "        <stringProp name=\"ThreadGroup.duration\"></stringProp>\n" +
                 "        <stringProp name=\"ThreadGroup.delay\"></stringProp>\n" +
@@ -325,7 +328,7 @@ public class JMeterUtil {
         EndpointTest endpointTest = restEndpoint.getEndpointTest();
         stringBuilder.append("        <HTTPSamplerProxy guiclass=\"HttpTestSampleGui\" testclass=\"HTTPSamplerProxy\" testname=\""+request.getPath()+"\" enabled=\"true\">\n" +
                 "          <elementProp name=\"HTTPsampler.Arguments\" elementType=\"Arguments\" guiclass=\"HTTPArgumentsPanel\" testclass=\"Arguments\" testname=\"User Defined Variables\" enabled=\"true\">\n");
-        this.addPayLoad(stringBuilder, endpointTest.payLoad())
+        this.addPayLoad(stringBuilder, endpointTest.request().payLoad())
                 .append("          </elementProp>\n" +
                 "          <stringProp name=\"HTTPSampler.domain\">${HOST}</stringProp>\n" +
                 "          <stringProp name=\"HTTPSampler.port\">${PORT}</stringProp>\n" +
@@ -333,13 +336,13 @@ public class JMeterUtil {
                 "          <stringProp name=\"HTTPSampler.contentEncoding\"></stringProp>\n" +
                 "          <stringProp name=\"HTTPSampler.path\">"+request.getPath()+"</stringProp>\n" +
                 "          <stringProp name=\"HTTPSampler.method\">"+restEndpoint.getMethod()+"</stringProp>\n" +
-                "          <boolProp name=\"HTTPSampler.follow_redirects\">true</boolProp>\n" +
-                "          <boolProp name=\"HTTPSampler.auto_redirects\">false</boolProp>\n" +
-                "          <boolProp name=\"HTTPSampler.use_keepalive\">true</boolProp>\n" +
+                "          <boolProp name=\"HTTPSampler.follow_redirects\">"+ this.toString(endpointTest.request().followRedirects())+"</boolProp>\n" +
+                "          <boolProp name=\"HTTPSampler.auto_redirects\">"+ this.toString(endpointTest.request().autoRedirect())+"</boolProp>\n" +
+                "          <boolProp name=\"HTTPSampler.use_keepalive\">"+ this.toString(endpointTest.request().useKeepAlive())+"</boolProp>\n" +
                 "          <boolProp name=\"HTTPSampler.DO_MULTIPART_POST\">false</boolProp>\n" +
                 "          <stringProp name=\"HTTPSampler.embedded_url_re\"></stringProp>\n" +
-                "          <stringProp name=\"HTTPSampler.connect_timeout\"></stringProp>\n" +
-                "          <stringProp name=\"HTTPSampler.response_timeout\"></stringProp>\n" +
+                "          <stringProp name=\"HTTPSampler.connect_timeout\">"+endpointTest.request().connectTimeout()+"</stringProp>\n" +
+                "          <stringProp name=\"HTTPSampler.response_timeout\">"+endpointTest.request().responseTimeout()+"</stringProp>\n" +
                 "          <stringProp name=\"TestPlan.comments\">"+restEndpoint.getPath()+"</stringProp>\n" +
                 "        </HTTPSamplerProxy>\n");
         return this.addAssertions(stringBuilder, endpointTest);
@@ -357,23 +360,24 @@ public class JMeterUtil {
     }
 
     private StringBuilder addAssertions(StringBuilder stringBuilder, EndpointTest endpointTest){
-        this.addReponseAssertion(stringBuilder, endpointTest.httpStatus());
-        this.addLatencyAssertion(stringBuilder, "${MAXLATENCY}");
-        this.addSizeAssertion(stringBuilder, 100);
+        Response responseAssertions = endpointTest.response();
+        this.addReponseAssertion(stringBuilder, responseAssertions.responseAssertion());
+        this.addLatencyAssertion(stringBuilder, responseAssertions.latencyAssertion());
+        this.addSizeAssertion(stringBuilder, responseAssertions.sizeAssertion());
         this.addJsonAssertion(stringBuilder, endpointTest);
         return stringBuilder.append("      </hashTree>\n");
     }
 
     private StringBuilder addJsonAssertion(StringBuilder stringBuilder, EndpointTest endpointTest){
-        JSONAssertion[] assertions = endpointTest.jsonAssertions();
+        JSONAssertion[] assertions = endpointTest.response().jsonAssertions();
         for(int i = 0; i<assertions.length; ++i){
             stringBuilder.append("          <JSONPathAssertion guiclass=\"JSONPathAssertionGui\" testclass=\"JSONPathAssertion\" testname=\"JSON Assertion ("+i+")\" enabled=\"true\">\n" +
                     "            <stringProp name=\"JSON_PATH\">"+assertions[i].path()+"</stringProp>\n" +
                     "            <stringProp name=\"EXPECTED_VALUE\">"+assertions[i].expectedValue().replace("\"", "&quot;")+"</stringProp>\n" +
-                    "            <boolProp name=\"JSONVALIDATION\">true</boolProp>\n" +
-                    "            <boolProp name=\"EXPECT_NULL\">false</boolProp>\n" +
-                    "            <boolProp name=\"INVERT\">false</boolProp>\n" +
-                    "            <boolProp name=\"ISREGEX\">false</boolProp>\n" +
+                    "            <boolProp name=\"JSONVALIDATION\">"+this.toString(assertions[i].jsonValidation())+"</boolProp>\n" +
+                    "            <boolProp name=\"EXPECT_NULL\">"+this.toString(assertions[i].expectNull())+"</boolProp>\n" +
+                    "            <boolProp name=\"INVERT\">"+this.toString(assertions[i].invert())+"</boolProp>\n" +
+                    "            <boolProp name=\"ISREGEX\">"+this.toString(assertions[i].regex())+"</boolProp>\n" +
                     "          </JSONPathAssertion>\n" +
                     "          <hashTree/>\n");
         }
@@ -381,36 +385,40 @@ public class JMeterUtil {
     }
 
 
-        private StringBuilder addReponseAssertion(StringBuilder stringBuilder, int statusCode){
+        private StringBuilder addReponseAssertion(StringBuilder stringBuilder, ResponseAssertion responseAssertion){
         return stringBuilder.append("        <hashTree>\n" +
                 "          <ResponseAssertion guiclass=\"AssertionGui\" testclass=\"ResponseAssertion\" testname=\"Response Assertion\" enabled=\"true\">\n" +
                 "            <collectionProp name=\"Asserion.test_strings\">\n" +
-                "              <stringProp name=\"49587\">"+statusCode+"</stringProp>\n" +
+                "              <stringProp name=\"49587\">"+responseAssertion.value()+"</stringProp>\n" +
                 "            </collectionProp>\n" +
                 "            <stringProp name=\"Assertion.custom_message\"></stringProp>\n" +
-                "            <stringProp name=\"Assertion.test_field\">Assertion.response_code</stringProp>\n" +
-                "            <boolProp name=\"Assertion.assume_success\">false</boolProp>\n" +
-                "            <intProp name=\"Assertion.test_type\">8</intProp>\n" +
+                "            <stringProp name=\"Assertion.test_field\">Assertion."+responseAssertion.testField().name()+"</stringProp>\n" +
+                "            <boolProp name=\"Assertion.assume_success\">"+this.toString(responseAssertion.assumeSuccess())+"</boolProp>\n" +
+                "            <intProp name=\"Assertion.test_type\">"+(1 << responseAssertion.operator().ordinal())+"</intProp>\n" +
                 "          </ResponseAssertion>\n" +
                 "          <hashTree/>\n");
     }
 
-    private StringBuilder addLatencyAssertion(StringBuilder stringBuilder, String maxLatency){
+    private StringBuilder addLatencyAssertion(StringBuilder stringBuilder, int maxLatency){
+        String _maxLatency = (maxLatency==0)?"${MAXLATENCY}" : maxLatency + "";
         return stringBuilder.append("          <DurationAssertion guiclass=\"DurationAssertionGui\" testclass=\"DurationAssertion\" testname=\"Duration Assertion\" enabled=\"true\">\n" +
-                "            <stringProp name=\"DurationAssertion.duration\">"+maxLatency+"</stringProp>\n" +
+                "            <stringProp name=\"DurationAssertion.duration\">"+_maxLatency+"</stringProp>\n" +
                 "          </DurationAssertion>\n"+
                 "          <hashTree/>\n");
     }
 
-    private StringBuilder addSizeAssertion(StringBuilder stringBuilder, int size){
+    private StringBuilder addSizeAssertion(StringBuilder stringBuilder, SizeAssertion sizeAssertion){
         return stringBuilder.append("          <SizeAssertion guiclass=\"SizeAssertionGui\" testclass=\"SizeAssertion\" testname=\"Size Assertion\" enabled=\"true\">\n" +
                 "            <stringProp name=\"Assertion.test_field\">SizeAssertion.response_network_size</stringProp>\n" +
-                "            <stringProp name=\"SizeAssertion.size\">"+size+"</stringProp>\n" +
-                "            <intProp name=\"SizeAssertion.operator\">3</intProp>\n" +
+                "            <stringProp name=\"SizeAssertion.size\">"+sizeAssertion.value()+"</stringProp>\n" +
+                "            <intProp name=\"SizeAssertion.operator\">"+(sizeAssertion.operator().ordinal()+1)+"</intProp>\n" +
                 "          </SizeAssertion>\n" +
                 "          <hashTree/>\n");
     }
 
+    private String toString(boolean b){
+        return b? "true" : "false";
+    }
 
     /*
     // fehlerhaft

@@ -5,7 +5,7 @@ import de.hsos.bachelorarbeit.nh.endpoint.generate.entities.RESTEndpoint;
 import de.hsos.bachelorarbeit.nh.endpoint.generate.entities.Request;
 import de.hsos.bachelorarbeit.nh.endpoint.generate.usecases.getRequests.EndpointUTIL;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTest;
-import de.hsos.bachelorarbeit.nh.jmeter.annotation.Parameter;
+import de.hsos.bachelorarbeit.nh.jmeter.annotation.Request.Parameter;
 import org.reflections.Reflections;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -78,7 +78,7 @@ public class SpringEndpointUTIL extends EndpointUTIL {
 
     protected Request parseRequest(RESTEndpoint restEndpoint){
         List<String> splitedPath = this.splitPath(restEndpoint.getPath());
-        String joinPath = this.joinPath(splitedPath, restEndpoint.getEndpointTest().parameters());
+        String joinPath = this.joinPath(splitedPath, restEndpoint.getEndpointTest().request().parameters());
         return new Request(joinPath, restEndpoint);
     }
 

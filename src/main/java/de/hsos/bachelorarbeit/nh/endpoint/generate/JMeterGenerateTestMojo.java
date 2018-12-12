@@ -15,7 +15,7 @@ import org.apache.maven.project.MavenProject;
 import java.nio.file.Paths;
 import java.util.List;
 
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, threadSafe = true)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.TEST, threadSafe = true)
 public class JMeterGenerateTestMojo extends AbstractMojo {
     @Parameter(required = true, readonly =  true)
     private String jmxPath;
