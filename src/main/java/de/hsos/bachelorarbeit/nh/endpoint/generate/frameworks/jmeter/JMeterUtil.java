@@ -385,9 +385,10 @@ public class JMeterUtil {
     }
 
 
-        private StringBuilder addReponseAssertion(StringBuilder stringBuilder, ResponseAssertion[] responseAssertions){
+    private StringBuilder addReponseAssertion(StringBuilder stringBuilder, ResponseAssertion[] responseAssertions){
+        stringBuilder.append("        <hashTree>\n");
         for(ResponseAssertion responseAssertion : responseAssertions){
-            stringBuilder.append("        <hashTree>\n" +
+            stringBuilder.append(
                     "          <ResponseAssertion guiclass=\"AssertionGui\" testclass=\"ResponseAssertion\" testname=\"Response Assertion\" enabled=\"true\">\n" +
                     "            <collectionProp name=\"Asserion.test_strings\">\n" +
                     "              <stringProp name=\"49587\">"+responseAssertion.value()+"</stringProp>\n" +
