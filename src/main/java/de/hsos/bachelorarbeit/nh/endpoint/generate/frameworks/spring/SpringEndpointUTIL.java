@@ -1,6 +1,7 @@
 package de.hsos.bachelorarbeit.nh.endpoint.generate.frameworks.spring;
 
 
+import de.hsos.bachelorarbeit.nh.endpoint.coverage.usecases.generateCoverage.EndpointTests;
 import de.hsos.bachelorarbeit.nh.endpoint.generate.entities.RESTEndpoint;
 import de.hsos.bachelorarbeit.nh.endpoint.generate.entities.Request;
 import de.hsos.bachelorarbeit.nh.endpoint.generate.usecases.getRequests.EndpointUTIL;
@@ -28,18 +29,35 @@ public class SpringEndpointUTIL extends EndpointUTIL {
         String baseURL = requestMappings[0].value().length > 0 ? requestMappings[0].value()[0] : "";
 
         for (Method m : clazz.getDeclaredMethods()) {
-            EndpointTest endpointTest = m.getAnnotation(EndpointTest.class);
             RequestMapping requestMapping = m.getAnnotation(RequestMapping.class);
-            if (endpointTest != null && requestMapping != null) {
-                String[] paths = requestMapping.value();
-                RequestMethod[] methods = requestMapping.method();
-                for (int i = 0; i < paths.length; ++i) {
-                    endpoints.add(new RESTEndpoint(baseURL + paths[i], methods[i].name(), endpointTest));
+            if(requestMapping!=null){
+                EndpointTest endpointTest = m.getAnnotation(EndpointTest.class);
+                de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTests endpointTests = m.getAnnotation(de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTests.class);
+                if(endpointTest!=null){
+                    this.addEndpoint(endpoints, baseURL, endpointTest, requestMapping);
+                }
+                if(endpointTests!=null){
+                    this.addEndpoint(endpoints, baseURL, endpointTests, requestMapping);
                 }
             }
         }
         return  endpoints.stream();
     }
+
+    private void addEndpoint(List<RESTEndpoint> endpoints, String baseURL, de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTests endpointTests, RequestMapping requestMapping){
+        for(de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTest endpointTest : endpointTests.value()){
+            this.addEndpoint(endpoints,baseURL, endpointTest, requestMapping);
+        }
+    }
+
+    private void addEndpoint(List<RESTEndpoint> endpoints, String baseURL, EndpointTest endpointTest, RequestMapping requestMapping){
+        String[] paths = requestMapping.value();
+        RequestMethod[] methods = requestMapping.method();
+        for (int i = 0; i < paths.length; ++i) {
+            endpoints.add(new RESTEndpoint(baseURL + paths[i], methods[i].name(), endpointTest));
+        }
+    }
+
     private List<String> splitPath(String path){
         List<String> result = new ArrayList<>();
         String[] paths = path.split("/");

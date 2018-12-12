@@ -361,9 +361,9 @@ public class JMeterUtil {
 
     private StringBuilder addAssertions(StringBuilder stringBuilder, EndpointTest endpointTest){
         Response responseAssertions = endpointTest.response();
-        this.addReponseAssertion(stringBuilder, responseAssertions.responseAssertion());
+        this.addReponseAssertion(stringBuilder, responseAssertions.responseAssertions());
         this.addLatencyAssertion(stringBuilder, responseAssertions.latencyAssertion());
-        this.addSizeAssertion(stringBuilder, responseAssertions.sizeAssertion());
+        this.addSizeAssertion(stringBuilder, responseAssertions.sizeAssertions());
         this.addJsonAssertion(stringBuilder, endpointTest);
         return stringBuilder.append("      </hashTree>\n");
     }
@@ -385,18 +385,21 @@ public class JMeterUtil {
     }
 
 
-        private StringBuilder addReponseAssertion(StringBuilder stringBuilder, ResponseAssertion responseAssertion){
-        return stringBuilder.append("        <hashTree>\n" +
-                "          <ResponseAssertion guiclass=\"AssertionGui\" testclass=\"ResponseAssertion\" testname=\"Response Assertion\" enabled=\"true\">\n" +
-                "            <collectionProp name=\"Asserion.test_strings\">\n" +
-                "              <stringProp name=\"49587\">"+responseAssertion.value()+"</stringProp>\n" +
-                "            </collectionProp>\n" +
-                "            <stringProp name=\"Assertion.custom_message\"></stringProp>\n" +
-                "            <stringProp name=\"Assertion.test_field\">Assertion."+responseAssertion.testField().name()+"</stringProp>\n" +
-                "            <boolProp name=\"Assertion.assume_success\">"+this.toString(responseAssertion.assumeSuccess())+"</boolProp>\n" +
-                "            <intProp name=\"Assertion.test_type\">"+(1 << responseAssertion.operator().ordinal())+"</intProp>\n" +
-                "          </ResponseAssertion>\n" +
-                "          <hashTree/>\n");
+        private StringBuilder addReponseAssertion(StringBuilder stringBuilder, ResponseAssertion[] responseAssertions){
+        for(ResponseAssertion responseAssertion : responseAssertions){
+            stringBuilder.append("        <hashTree>\n" +
+                    "          <ResponseAssertion guiclass=\"AssertionGui\" testclass=\"ResponseAssertion\" testname=\"Response Assertion\" enabled=\"true\">\n" +
+                    "            <collectionProp name=\"Asserion.test_strings\">\n" +
+                    "              <stringProp name=\"49587\">"+responseAssertion.value()+"</stringProp>\n" +
+                    "            </collectionProp>\n" +
+                    "            <stringProp name=\"Assertion.custom_message\"></stringProp>\n" +
+                    "            <stringProp name=\"Assertion.test_field\">Assertion."+responseAssertion.testField().name()+"</stringProp>\n" +
+                    "            <boolProp name=\"Assertion.assume_success\">"+this.toString(responseAssertion.assumeSuccess())+"</boolProp>\n" +
+                    "            <intProp name=\"Assertion.test_type\">"+(1 << responseAssertion.operator().ordinal())+"</intProp>\n" +
+                    "          </ResponseAssertion>\n" +
+                    "          <hashTree/>\n");
+        }
+        return stringBuilder;
     }
 
     private StringBuilder addLatencyAssertion(StringBuilder stringBuilder, int maxLatency){
@@ -407,13 +410,16 @@ public class JMeterUtil {
                 "          <hashTree/>\n");
     }
 
-    private StringBuilder addSizeAssertion(StringBuilder stringBuilder, SizeAssertion sizeAssertion){
-        return stringBuilder.append("          <SizeAssertion guiclass=\"SizeAssertionGui\" testclass=\"SizeAssertion\" testname=\"Size Assertion\" enabled=\"true\">\n" +
-                "            <stringProp name=\"Assertion.test_field\">SizeAssertion.response_network_size</stringProp>\n" +
-                "            <stringProp name=\"SizeAssertion.size\">"+sizeAssertion.value()+"</stringProp>\n" +
-                "            <intProp name=\"SizeAssertion.operator\">"+(sizeAssertion.operator().ordinal()+1)+"</intProp>\n" +
-                "          </SizeAssertion>\n" +
-                "          <hashTree/>\n");
+    private StringBuilder addSizeAssertion(StringBuilder stringBuilder, SizeAssertion[] sizeAssertions){
+        for(SizeAssertion sizeAssertion : sizeAssertions){
+            stringBuilder.append("          <SizeAssertion guiclass=\"SizeAssertionGui\" testclass=\"SizeAssertion\" testname=\"Size Assertion\" enabled=\"true\">\n" +
+                    "            <stringProp name=\"Assertion.test_field\">SizeAssertion.response_network_size</stringProp>\n" +
+                    "            <stringProp name=\"SizeAssertion.size\">"+sizeAssertion.value()+"</stringProp>\n" +
+                    "            <intProp name=\"SizeAssertion.operator\">"+(sizeAssertion.operator().ordinal()+1)+"</intProp>\n" +
+                    "          </SizeAssertion>\n" +
+                    "          <hashTree/>\n");
+        }
+        return stringBuilder;
     }
 
     private String toString(boolean b){
