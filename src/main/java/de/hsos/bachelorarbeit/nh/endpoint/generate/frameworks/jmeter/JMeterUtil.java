@@ -50,6 +50,7 @@ public class JMeterUtil {
 
     private void writeFile(StringBuilder stringBuilder, String destination) throws IOException {
         File file = new File(destination);
+        file.createNewFile();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(stringBuilder.toString());
         }
