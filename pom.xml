@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.NiklasHoltmeyer</groupId>
-    <artifactId>maven-jmeter-test</artifactId>
+    <artifactId>maven-endpoint-test</artifactId>
     <!--
     <groupId>dev.local.test</groupId>
     <artifactId>local.test</artifactId>
@@ -15,7 +15,7 @@
 
     <name>maven-jmeter-test Maven Plugin</name>
 
-    <url>https://github.com/NiklasHoltmeyer/maven-jmeter-test</url>
+    <url>https://github.com/NiklasHoltmeyer/maven-endpoint-test</url>
 
     <prerequisites>
         <maven>${maven.version}</maven>
@@ -125,8 +125,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.NiklasHoltmeyer</groupId>
-            <artifactId>maven-jmeter-test-annotations</artifactId>
+	    <groupId>com.github.NiklasHoltmeyer</groupId>
+	    <artifactId>maven-endpoint-test-annotations</artifactId>
             <version>${annotations.version}</version>
 <!--
             <groupId>dev.local.test</groupId>
@@ -194,7 +194,7 @@
                 <configuration>
                     <!-- <goalPrefix>maven-archetype-plugin</goalPrefix> -->
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                    <goalPrefix>jmeter-test</goalPrefix>
+                    <goalPrefix>endpoint-test</goalPrefix>
                 </configuration>
                 <executions>
                     <execution>
