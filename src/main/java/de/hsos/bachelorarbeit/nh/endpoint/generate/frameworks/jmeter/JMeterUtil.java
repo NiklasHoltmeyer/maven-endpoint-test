@@ -13,7 +13,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,9 +52,7 @@ public class JMeterUtil {
         File file = new File(destination);
 
         if(!file.exists()){
-            Files.createDirectories(file.getParentFile().toPath());
-            //file.getParentFile().getParentFile().mkdirs();
-            //file.getParentFile().mkdirs();
+            file.getParentFile().mkdirs();
             file.createNewFile();
         }
 
