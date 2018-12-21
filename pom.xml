@@ -10,7 +10,7 @@
     <artifactId>local.test</artifactId>
     -->
 
-    <version>3.2.3cuaaaa</version>
+    <version>3.2.3cuaaaaa</version>
     <packaging>maven-plugin</packaging>
 
     <name>maven-jmeter-test Maven Plugin</name>
