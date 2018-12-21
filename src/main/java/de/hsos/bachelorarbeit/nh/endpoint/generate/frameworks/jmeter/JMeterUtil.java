@@ -11,6 +11,7 @@ import org.apache.maven.plugin.logging.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.lang.Object.Files;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -49,8 +50,10 @@ public class JMeterUtil {
     }
 
     private void writeFile(StringBuilder stringBuilder, String destination) throws IOException {
-        File file = new File(destination);
-        file.getParentFile().mkdirs()
+        File file = new File(destination);        
+        Files.createDirectories(file.toPath());
+        //file.getParentFile().getParentFile().mkdirs();
+        //file.getParentFile().mkdirs();
         file.createNewFile();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(stringBuilder.toString());
