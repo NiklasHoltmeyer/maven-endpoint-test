@@ -53,7 +53,7 @@ public class JMeterUtil {
         File file = new File(destination);
 
         if(!file.exists()){
-            Files.createDirectories(file.toPath());
+            Files.createDirectories(file.getParentFile().toPath());
             //file.getParentFile().getParentFile().mkdirs();
             //file.getParentFile().mkdirs();
             file.createNewFile();
