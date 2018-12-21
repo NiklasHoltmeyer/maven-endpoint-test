@@ -50,11 +50,15 @@ public class JMeterUtil {
     }
 
     private void writeFile(StringBuilder stringBuilder, String destination) throws IOException {
-        File file = new File(destination);        
-        Files.createDirectories(file.toPath());
-        //file.getParentFile().getParentFile().mkdirs();
-        //file.getParentFile().mkdirs();
-        file.createNewFile();
+        File file = new File(destination);
+
+        if(!file.exists()){
+            Files.createDirectories(file.toPath());
+            //file.getParentFile().getParentFile().mkdirs();
+            //file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(stringBuilder.toString());
         }
