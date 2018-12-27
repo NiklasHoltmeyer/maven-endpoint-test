@@ -297,7 +297,7 @@ public class JMeterUtil {
                 "      </ResultCollector>\n" +
                 "      <hashTree/>" +
                 "      <ResultCollector guiclass=\"StatVisualizer\" testclass=\"ResultCollector\" testname=\"Aggregate Report\" enabled=\"true\">\n" +
-                "        <boolProp name=\"ResultCollector.error_logging\">true</boolProp>\n" +
+                "        <boolProp name=\"ResultCollector.error_logging\">false</boolProp>\n" +
                 "        <objProp>\n" +
                 "          <name>saveConfig</name>\n" +
                 "          <value class=\"SampleSaveConfiguration\">\n" +
