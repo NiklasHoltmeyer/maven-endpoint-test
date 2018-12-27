@@ -265,7 +265,7 @@ public class JMeterUtil {
                 "        <stringProp name=\"filename\">${reportPath}/results.xml</stringProp>\n" +
                 "      </ResultCollector>\n" +
                 "      <hashTree/>" +
-                "      <ResultCollector guiclass=\"StatVisualizer\" testclass=\"ResultCollector\" testname=\"Aggregate Report\" enabled=\"true\">\n" +
+                "      <ResultCollector guiclass=\"StatVisualizer\" testclass=\"ResultCollector\" testname=\"Aggregate Report (Errors Only)\" enabled=\"true\">\n" +
                 "        <boolProp name=\"ResultCollector.error_logging\">true</boolProp>\n" +
                 "        <objProp>\n" +
                 "          <name>saveConfig</name>\n" +
@@ -290,6 +290,37 @@ public class JMeterUtil {
                 "            <requestHeaders>false</requestHeaders>\n" +
                 "            <responseDataOnError>false</responseDataOnError>\n" +
                 "            <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>\n" +
+                "            <assertionsResultsToSave>0</assertionsResultsToSave>\n" +
+                "          </value>\n" +
+                "        </objProp>\n" +
+                "        <stringProp name=\"filename\">${reportPath}/aggregateReport-error-only.xml</stringProp>\n" +
+                "      </ResultCollector>\n" +
+                "      <hashTree/>" +
+                "      <ResultCollector guiclass=\"StatVisualizer\" testclass=\"ResultCollector\" testname=\"Aggregate Report\" enabled=\"true\">\n" +
+                "        <boolProp name=\"ResultCollector.error_logging\">true</boolProp>\n" +
+                "        <objProp>\n" +
+                "          <name>saveConfig</name>\n" +
+                "          <value class=\"SampleSaveConfiguration\">\n" +
+                "            <time>true</time>\n" +
+                "            <latency>true</latency>\n" +
+                "            <timestamp>true</timestamp>\n" +
+                "            <success>true</success>\n" +
+                "            <label>true</label>\n" +
+                "            <code>true</code>\n" +
+                "            <message>true</message>\n" +
+                "            <threadName>true</threadName>\n" +
+                "            <dataType>true</dataType>\n" +
+                "            <encoding>true</encoding>\n" +
+                "            <assertions>true</assertions>\n" +
+                "            <subresults>true</subresults>\n" +
+                "            <responseData>true</responseData>\n" +
+                "            <samplerData>true</samplerData>\n" +
+                "            <xml>true</xml>\n" +
+                "            <fieldNames>true</fieldNames>\n" +
+                "            <responseHeaders>true</responseHeaders>\n" +
+                "            <requestHeaders>true</requestHeaders>\n" +
+                "            <responseDataOnError>true</responseDataOnError>\n" +
+                "            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>\n" +
                 "            <assertionsResultsToSave>0</assertionsResultsToSave>\n" +
                 "          </value>\n" +
                 "        </objProp>\n" +
