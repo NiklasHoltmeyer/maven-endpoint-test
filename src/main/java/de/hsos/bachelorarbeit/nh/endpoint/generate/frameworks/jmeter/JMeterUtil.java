@@ -315,7 +315,7 @@ public class JMeterUtil {
                 "          </elementProp>\n" +
                 "          <elementProp name=\"reportPath\" elementType=\"Argument\">\n" +
                 "            <stringProp name=\"Argument.name\">reportPath</stringProp>\n" +
-                "            <stringProp name=\"Argument.value\">${__P(reportPath,&quot;report.xml&quot;)}</stringProp>\n" +
+                "            <stringProp name=\"Argument.value\">${__P(reportPath,reports)}</stringProp>\n" +
                 "            <stringProp name=\"Argument.metadata\">=</stringProp>\n" +
                 "          </elementProp>\n" +
                 "          <elementProp name=\"MAXLATENCY\" elementType=\"Argument\">\n" +
