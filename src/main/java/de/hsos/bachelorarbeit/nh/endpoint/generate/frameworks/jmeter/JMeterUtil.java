@@ -293,7 +293,7 @@ public class JMeterUtil {
                 "            <assertionsResultsToSave>0</assertionsResultsToSave>\n" +
                 "          </value>\n" +
                 "        </objProp>\n" +
-                "        <stringProp name=\"filename\">${reportPath}/report.xml</stringProp>\n" +
+                "        <stringProp name=\"filename\">${reportPath}/aggregateReport.xml</stringProp>\n" +
                 "      </ResultCollector>\n" +
                 "      <hashTree/>\n" +
                 "      <Arguments guiclass=\"ArgumentsPanel\" testclass=\"Arguments\" testname=\"User Defined Variables\" enabled=\"true\">\n" +
