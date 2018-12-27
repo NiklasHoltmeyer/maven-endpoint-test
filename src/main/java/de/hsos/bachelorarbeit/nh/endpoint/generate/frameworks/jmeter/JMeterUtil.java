@@ -228,6 +228,43 @@ public class JMeterUtil {
                 "        <stringProp name=\"filename\"></stringProp>\n" +
                 "      </ResultCollector>\n" +
                 "      <hashTree/>\n" +
+                "      <ResultCollector guiclass=\"TableVisualizer\" testclass=\"ResultCollector\" testname=\"View Results in Table\" enabled=\"true\">\n" +
+                "        <boolProp name=\"ResultCollector.error_logging\">false</boolProp>\n" +
+                "        <objProp>\n" +
+                "          <name>saveConfig</name>\n" +
+                "          <value class=\"SampleSaveConfiguration\">\n" +
+                "            <time>true</time>\n" +
+                "            <latency>true</latency>\n" +
+                "            <timestamp>true</timestamp>\n" +
+                "            <success>true</success>\n" +
+                "            <label>true</label>\n" +
+                "            <code>true</code>\n" +
+                "            <message>true</message>\n" +
+                "            <threadName>true</threadName>\n" +
+                "            <dataType>true</dataType>\n" +
+                "            <encoding>false</encoding>\n" +
+                "            <assertions>true</assertions>\n" +
+                "            <subresults>true</subresults>\n" +
+                "            <responseData>false</responseData>\n" +
+                "            <samplerData>false</samplerData>\n" +
+                "            <xml>true</xml>\n" +
+                "            <fieldNames>true</fieldNames>\n" +
+                "            <responseHeaders>false</responseHeaders>\n" +
+                "            <requestHeaders>false</requestHeaders>\n" +
+                "            <responseDataOnError>false</responseDataOnError>\n" +
+                "            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>\n" +
+                "            <assertionsResultsToSave>0</assertionsResultsToSave>\n" +
+                "            <bytes>true</bytes>\n" +
+                "            <sentBytes>true</sentBytes>\n" +
+                "            <url>true</url>\n" +
+                "            <threadCounts>true</threadCounts>\n" +
+                "            <idleTime>true</idleTime>\n" +
+                "            <connectTime>true</connectTime>\n" +
+                "          </value>\n" +
+                "        </objProp>\n" +
+                "        <stringProp name=\"filename\">${reportPath}/results.xml</stringProp>\n" +
+                "      </ResultCollector>\n" +
+                "      <hashTree/>" +
                 "      <ResultCollector guiclass=\"StatVisualizer\" testclass=\"ResultCollector\" testname=\"Aggregate Report\" enabled=\"true\">\n" +
                 "        <boolProp name=\"ResultCollector.error_logging\">true</boolProp>\n" +
                 "        <objProp>\n" +
@@ -256,7 +293,7 @@ public class JMeterUtil {
                 "            <assertionsResultsToSave>0</assertionsResultsToSave>\n" +
                 "          </value>\n" +
                 "        </objProp>\n" +
-                "        <stringProp name=\"filename\">${aggregateReport}</stringProp>\n" +
+                "        <stringProp name=\"filename\">${reportPath}/report.xml</stringProp>\n" +
                 "      </ResultCollector>\n" +
                 "      <hashTree/>\n" +
                 "      <Arguments guiclass=\"ArgumentsPanel\" testclass=\"Arguments\" testname=\"User Defined Variables\" enabled=\"true\">\n" +
@@ -276,9 +313,9 @@ public class JMeterUtil {
                 "            <stringProp name=\"Argument.value\">${__P(PORT,"+this.defaultPort+")}</stringProp>\n" +
                 "            <stringProp name=\"Argument.metadata\">=</stringProp>\n" +
                 "          </elementProp>\n" +
-                "          <elementProp name=\"aggregateReport\" elementType=\"Argument\">\n" +
-                "            <stringProp name=\"Argument.name\">aggregateReport</stringProp>\n" +
-                "            <stringProp name=\"Argument.value\">${__P(aggregateReport,&quot;report.xml&quot;)}</stringProp>\n" +
+                "          <elementProp name=\"reportPath\" elementType=\"Argument\">\n" +
+                "            <stringProp name=\"Argument.name\">reportPath</stringProp>\n" +
+                "            <stringProp name=\"Argument.value\">${__P(reportPath,&quot;report.xml&quot;)}</stringProp>\n" +
                 "            <stringProp name=\"Argument.metadata\">=</stringProp>\n" +
                 "          </elementProp>\n" +
                 "          <elementProp name=\"MAXLATENCY\" elementType=\"Argument\">\n" +
