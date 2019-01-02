@@ -3,14 +3,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>github.NiklasHoltmeyer</groupId>
+    <groupId>com.github.NiklasHoltmeyer</groupId>
     <artifactId>maven-endpoint-test</artifactId>
     <!--
     <groupId>dev.local.test</groupId>
     <artifactId>local.test</artifactId>
 -->
 
-    <version>3.2.3d012</version>
+    <version>3.2.3e</version>
     <packaging>maven-plugin</packaging>
 
     <name>maven-jmeter-test Maven Plugin</name>
@@ -163,6 +163,9 @@
                             </goals>
                         </execution>
                     </executions>
+                    <configuration>
+                        <goalPrefix>endpoint-test</goalPrefix>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -193,7 +196,8 @@
                 <version>3.5.1</version>
                 <configuration>
                     <!-- <goalPrefix>maven-archetype-plugin</goalPrefix> -->
-                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                    <!--<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>-->
+                    <skipErrorNoDescriptorsFound>false</skipErrorNoDescriptorsFound>
                     <goalPrefix>endpoint-test</goalPrefix>
                 </configuration>
                 <executions>
@@ -220,3 +224,4 @@
         </repository>
     </distributionManagement>
 </project>
+
