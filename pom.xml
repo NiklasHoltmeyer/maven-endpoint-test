@@ -3,14 +3,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.NiklasHoltmeyer</groupId>
+    <groupId>github.NiklasHoltmeyer</groupId>
     <artifactId>maven-endpoint-test</artifactId>
     <!--
     <groupId>dev.local.test</groupId>
     <artifactId>local.test</artifactId>
 -->
 
-    <version>3.2.3d005</version>
+    <version>3.2.3d006</version>
     <packaging>maven-plugin</packaging>
 
     <name>maven-jmeter-test Maven Plugin</name>

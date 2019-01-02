@@ -1,5 +1,6 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate;
 
+import com.google.gson.Gson;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.gson.ReadEndPointGroupInfos;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.jmeter.JMeterReadTestResults;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.EvaluateTestResults;
@@ -32,6 +33,7 @@ public class EvaluateMojo  extends AbstractMojo {
         ReadExecutionInfo readExecutionInfo = new ReadEndPointGroupInfos(getLog(), reportPath);
 
         EvaluateTestResults evaluateTestResults = new EvaluateTestResults(readTestsResults, readExecutionInfo);
-        getLog().info(evaluateTestResults.toString());
+        String json =new Gson().toJson(evaluateTestResults);
+        getLog().info(json);
     }
 }
