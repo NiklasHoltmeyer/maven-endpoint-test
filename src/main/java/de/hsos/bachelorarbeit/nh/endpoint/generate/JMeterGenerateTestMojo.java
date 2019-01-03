@@ -28,7 +28,7 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
 
     @Parameter(readonly =  true)
     String testName;
-    @Parameter(readonly =  true, defaultValue = "localhost")
+    @Parameter(readonly =  true, defaultValue = "127.0.0.1")
     String defaultHost;
     @Parameter(readonly =  true, defaultValue = "8080")
     int defaultPort;
