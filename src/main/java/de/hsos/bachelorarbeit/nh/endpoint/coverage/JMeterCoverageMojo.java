@@ -23,7 +23,7 @@ import java.util.List;
 @Mojo(name = "coverage", defaultPhase = LifecyclePhase.TEST, threadSafe = true)
 public class JMeterCoverageMojo extends AbstractMojo {
     @Parameter(required = true, readonly =  true)
-    private String jmxPath;
+    private String destination;
 
     @Parameter(required = true, readonly =  true)
     private List<String> basePackages;
@@ -37,7 +37,9 @@ public class JMeterCoverageMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {       
         String baseDir = project.getBasedir().getAbsolutePath();
-        String jmxAbsolutePath = (jmxPath.startsWith(baseDir)) ? Paths.get(jmxPath).toString() :  Paths.get(baseDir, jmxPath).toString(); // (jmx=absolute)? jmx : absolutePath(jmx)
+        String jmxAbsolutePath = (destination.startsWith(baseDir)) ? Paths.get(destination).toString() :  Paths.get(baseDir, destination).toString(); // (jmx=absolute)? jmx : absolutePath(jmx)
+        if(!jmxAbsolutePath.endsWith(".jmx")) jmxAbsolutePath = Paths.get(jmxAbsolutePath, "all-endpoints.jmx").toAbsolutePath().toString();
+
 
         Thread.currentThread().setContextClassLoader(new ClassLoaderLoader().getClassLoader(project));
 

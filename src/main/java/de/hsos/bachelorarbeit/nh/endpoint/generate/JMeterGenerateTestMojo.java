@@ -18,7 +18,7 @@ import java.util.List;
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.TEST, threadSafe = true)
 public class JMeterGenerateTestMojo extends AbstractMojo {
     @Parameter(required = true, readonly =  true)
-    private String jmxPath;
+    private String destination;
 
     @Parameter(required = true, readonly =  true)
     private List<String> basePackages;
@@ -38,7 +38,7 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException{
         String baseDir = project.getBasedir().getAbsolutePath();
-        String jmxAbsolutePath = (jmxPath.startsWith(baseDir)) ? Paths.get(jmxPath).toString() :  Paths.get(baseDir, jmxPath).toString(); // (jmx=absolute)? jmx : absolutePath(jmx)
+        String jmxAbsolutePath = (destination.startsWith(baseDir)) ? Paths.get(destination).toString() :  Paths.get(baseDir, destination).toString(); // (jmx=absolute)? jmx : absolutePath(jmx)
 
         Thread.currentThread().setContextClassLoader(new ClassLoaderLoader().getClassLoader(project));
 

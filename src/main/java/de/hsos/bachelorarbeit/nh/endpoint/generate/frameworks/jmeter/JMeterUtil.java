@@ -7,19 +7,24 @@ import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Assertions.JSON.JSON
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Assertions.Response.ResponseAssertion;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Assertions.Size.SizeAssertion;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Response;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.maven.plugin.logging.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
 public class JMeterUtil {
     Map<String, List<Request>> groupedRequests;
+    List<Request> requests;
     String testName;
     String defaultHost;
     int defaultPort;
@@ -28,6 +33,7 @@ public class JMeterUtil {
 
     public JMeterUtil(Log log, List<Request> requests, String testName, String defaultHost, int defaultPort, int defaultMaxLatency) {
         this.log=log;
+        this.requests=requests;
         this.groupedRequests=requests.stream()
                 .collect(Collectors.groupingBy(x-> "T: " + x.getRestEndpoint().getEndpointTest().request().threadProperties().threads() +
                         ", L: " + x.getRestEndpoint().getEndpointTest().request().threadProperties().loops() +
@@ -40,9 +46,51 @@ public class JMeterUtil {
     }
 
     public void createTests(String destination) throws IOException {
+        String defaultPath = destination;
+        String allEndpointPath = Paths.get(destination, "all-endpoints.jmx").toAbsolutePath().toString();
+        createTest(allEndpointPath);
+        createCapacityTests(defaultPath);
+    }
+
+    private void createCapacityTests(String defaultPath){
+        String path = Paths.get(defaultPath, "capacityTests").toAbsolutePath().toString();
+        int loops = 1;
+        int threads = 1000;
+        int rampUpTime = threads;
+
+        for(int i = 0; i < this.requests.size(); ++i){
+            Request request = this.requests.get(0);
+            StringBuilder stringBuilder = new StringBuilder();
+            this.addFileHeader(stringBuilder, testName);
+            RESTEndpoint rE = request.getRestEndpoint();
+
+            String name = (rE.getPath()+rE.getMethod()).replace("/", "-").replace("\\", "-");
+            if(name.length() > 9) name = name.substring(0, 9);
+            name = name + ++i;
+
+            this.createThreadGroup(stringBuilder, loops, threads, rampUpTime,name);
+
+            this.createHTTPSampler(stringBuilder, request);
+
+            stringBuilder.append("      </hashTree>\n");
+            this.addReports(stringBuilder);
+            this.addFileFooter(stringBuilder);
+
+            String dest = Paths.get(path, name + ".jmx").toAbsolutePath().toString();
+            try {
+                this.writeFile(stringBuilder, dest);
+            } catch (IOException e) {
+                log.error("IO-Exception-Path: " + dest);
+                this.log.error(e.toString());
+            }
+        }
+   }
+
+
+    private void createTest(String destination) throws IOException{
         StringBuilder stringBuilder = new StringBuilder();
         this.addFileHeader(stringBuilder, testName);
-        this.groupedRequests.keySet().stream().forEach(x-> this.createThreadGroup(stringBuilder, x));
+        this.groupedRequests.keySet().stream().forEach(x->createThreadGroup(stringBuilder,x));
         this.addReports(stringBuilder);
         this.addFileFooter(stringBuilder);
         this.writeFile(stringBuilder, destination);
@@ -372,28 +420,32 @@ public class JMeterUtil {
 
     }
 
-    private StringBuilder createThreadGroup(StringBuilder stringBuilder, String groupKey){
-        List<Request> requests = this.groupedRequests.get(groupKey).stream()
-                .sorted(this::orderRequestByPriority)
-                .collect(Collectors.toList());
-
-        EndpointTest threadGroupInfo = requests.get(0).getRestEndpoint().getEndpointTest();
-        stringBuilder.append("      <ThreadGroup guiclass=\"ThreadGroupGui\" testclass=\"ThreadGroup\" testname=\""+groupKey+"\" enabled=\"true\">\n" +
+    private StringBuilder createThreadGroup(StringBuilder stringBuilder, int loops, int threads, int rampUpTime, String groupKey){
+        return stringBuilder.append("      <ThreadGroup guiclass=\"ThreadGroupGui\" testclass=\"ThreadGroup\" testname=\""+groupKey+"\" enabled=\"true\">\n" +
                 "        <stringProp name=\"ThreadGroup.on_sample_error\">stoptest</stringProp>\n" +
                 "        <elementProp name=\"ThreadGroup.main_controller\" elementType=\"LoopController\" guiclass=\"LoopControlPanel\" testclass=\"LoopController\" testname=\"Loop Controller\" enabled=\"true\">\n" +
                 "          <boolProp name=\"LoopController.continue_forever\">false</boolProp>\n" +
-                "          <stringProp name=\"LoopController.loops\">"+threadGroupInfo.request().threadProperties().loops()+"</stringProp>\n" +
+                "          <stringProp name=\"LoopController.loops\">"+loops+"</stringProp>\n" +
                 "        </elementProp>\n" +
-                "        <stringProp name=\"ThreadGroup.num_threads\">"+threadGroupInfo.request().threadProperties().threads()+"</stringProp>\n" +
-                "        <stringProp name=\"ThreadGroup.ramp_time\">"+threadGroupInfo.request().threadProperties().rampUpTime()+"</stringProp>\n" +
+                "        <stringProp name=\"ThreadGroup.num_threads\">"+threads+"</stringProp>\n" +
+                "        <stringProp name=\"ThreadGroup.ramp_time\">"+rampUpTime+"</stringProp>\n" +
                 "        <boolProp name=\"ThreadGroup.scheduler\">false</boolProp>\n" +
                 "        <stringProp name=\"ThreadGroup.duration\"></stringProp>\n" +
                 "        <stringProp name=\"ThreadGroup.delay\"></stringProp>\n" +
                 "      </ThreadGroup>\n"+
                 "      <hashTree>\n");
+    }
 
+    private StringBuilder createThreadGroup(StringBuilder stringBuilder, String groupKey){
+        List<Request> requests = this.groupedRequests.get(groupKey).stream()
+                .sorted(this::orderRequestByPriority)
+                .collect(Collectors.toList());
+        EndpointTest threadGroupInfo = requests.get(0).getRestEndpoint().getEndpointTest();
+        this.createThreadGroup(stringBuilder, threadGroupInfo.request().threadProperties().loops(),
+                threadGroupInfo.request().threadProperties().threads(),
+                threadGroupInfo.request().threadProperties().rampUpTime(),
+                groupKey);
         requests.stream().forEach(request->this.createHTTPSampler(stringBuilder, request));
-
         return stringBuilder.append("      </hashTree>\n");
     }
 
@@ -569,4 +621,8 @@ public class JMeterUtil {
         return setupThreadGroup;
     }
     */
+}
+
+interface TestType{
+    void create(StringBuilder sb, String s);
 }
