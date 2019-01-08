@@ -10,5 +10,6 @@ public interface JsonUtil {
     <T> T fromJsonFile(String path, Class<T> clazz) throws IOException;
     <T> T fromJsonURL(String url, Class<T> clazz) throws IOException;
     <T> T fromJson(JsonElement jsonElement, Class<T> clazz) throws IOException;
+    String toJson(Object o);
 }
 

@@ -45,6 +45,11 @@ public class GsonJsonUtil implements JsonUtil {
         return this.getGson().fromJson(jsonElement, clazz);
     }
 
+    @Override
+    public String toJson(Object o) {
+        return this.getGson().toJson(o);
+    }
+
     private Gson getGson(){
         return new GsonBuilder().serializeSpecialFloatingPointValues().setPrettyPrinting().create();
     }

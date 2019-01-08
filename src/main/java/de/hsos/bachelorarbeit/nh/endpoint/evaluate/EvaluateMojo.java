@@ -2,14 +2,11 @@ package de.hsos.bachelorarbeit.nh.endpoint.evaluate;
 
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.jmeter.JMeterReadTestResults;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.CombineResults;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadExecutionInfo;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadTestsResults;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadWatchResults;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.jmeter.PublishResultsHttpClient;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.*;
 import de.hsos.bachelorarbeit.nh.endpoint.util.frameworks.GsonJsonUtil;
 import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -24,6 +21,9 @@ public class EvaluateMojo  extends AbstractMojo{
     @Parameter(required = true, readonly =  true)
     private String destination;
 
+    @Parameter(required = false, readonly =  true)
+    private String historyServer = "http://localhost:5089";
+
     @Override
     public void execute() throws MojoFailureException {
         String reportPath = Paths.get(destination, "reports").toAbsolutePath().toString();
@@ -31,6 +31,7 @@ public class EvaluateMojo  extends AbstractMojo{
         ReadTestsResults readTestsResults;
         ReadWatchResults readWatchResults;
         JsonUtil jsonUtil = new GsonJsonUtil();
+        PublishResults publishResults = new PublishResultsHttpClient(historyServer);
         try{
             readWatchResults = new ReadWatchResults(jsonUtil, reportPath);
         }catch (FileNotFoundException e) {
@@ -57,18 +58,15 @@ public class EvaluateMojo  extends AbstractMojo{
 
         }
         TestResultGroup result = cR.getTestResultGroup();
-
-        //EvaluateTestResults evaluateTestResults = new EvaluateTestResults(readTestsResults, readExecutionInfo);
-        //getLog().info(evaluateTestResults.toString());
-        //getLog().info(evaluateTestResults.getTestGroupOlds().toString());
-        //String jsonPath = Paths.get(reportPath, "evaluate.json").toAbsolutePath().toString();
-
+        boolean success = false;
         try {
-            jsonUtil.writeJson(result, "c:/Users/nikla/Desktop/hitler.json");
+            success = publishResults.publish(result);
         } catch (IOException e) {
             e.printStackTrace();
             throw new MojoFailureException(e.toString());
         }
+        String text = (success)? "Result Successfully pushed" : "Result could not be pushed!";
+        System.out.println(text);
     }
 }
 
