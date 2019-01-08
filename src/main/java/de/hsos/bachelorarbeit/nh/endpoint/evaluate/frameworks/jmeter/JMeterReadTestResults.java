@@ -1,8 +1,10 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.jmeter;
 
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndpointGroupInfo;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestRequestResult;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResult;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadTestsResults;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Unit;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -21,29 +23,32 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-public class JMeterReadTestResults implements ReadTestsResults {
+public class JMeterReadTestResults extends ReadTestsResults {
+    //String reportPath;
+    private static final String RESULTREPORTRELATIVEPATH = "all-endpoints.jmx\\result.jtl";
+    private static final String CAPACITYREPORTRELATIVEPATH = "capacityTests\\capacity.ssv";
+
+    private static String RESULTREPORTABSOLOUTEPATH;
+    private static String CAPACITYREPORTABSOLOUTEPATH;
+
     String reportPath;
-    private static final String RESULTS = "results.xml";
-    private static final String AGGREGATEREPORT = "aggregateReport.xml";
-    private static final String ENDPOINTREPORT = "acturator.json";
 
     public JMeterReadTestResults(String reportPath) throws FileNotFoundException {
-        this.reportPath = reportPath;
-        this.checkFiles(reportPath);
-    }
+        this.reportPath= reportPath;
+        RESULTREPORTABSOLOUTEPATH = Paths.get(this.reportPath, RESULTREPORTRELATIVEPATH).toAbsolutePath().toString();
+        CAPACITYREPORTABSOLOUTEPATH = Paths.get(this.reportPath, CAPACITYREPORTRELATIVEPATH).toAbsolutePath().toString();
 
-    private void checkFiles(String reportPath) throws FileNotFoundException {
-        String[] filesToCheck = {"", RESULTS, AGGREGATEREPORT};
-
-        for(String relativePath : filesToCheck){
-            Path absolutePath = Paths.get(reportPath, relativePath);
-            if(!Files.exists(absolutePath)) throw new FileNotFoundException("Missing Report-Folder (" + absolutePath.toString() + ")");
+        for(String p : new String[]{RESULTREPORTABSOLOUTEPATH, CAPACITYREPORTABSOLOUTEPATH}){
+            File f = new File(p);
+            if(!f.exists()) throw new FileNotFoundException("Report-Missing: " + p);
         }
+
     }
 
-    private Optional<NodeList> getHTTPSamples(){
-        String resultsPath = Paths.get(this.reportPath, AGGREGATEREPORT).toString();
+    private Optional<NodeList> getHTTPSamples(String path){
+        String resultsPath = Paths.get(path).toString();
         Document resultDocument;
         try {
             resultDocument = this.readXML(resultsPath);
@@ -76,35 +81,41 @@ public class JMeterReadTestResults implements ReadTestsResults {
         return Optional.empty();
     }
 
-    private TestResult parseTestResult(Node node, int nodeIndex){
-        TestResult testResults = new TestResult();
+    private TestRequestResult parseTestResult(Node node, int nodeIndex){
+        TestRequestResult testRequestResults = new TestRequestResult("", "");
         NamedNodeMap namedNodeMap = node.getAttributes();
 
+        Optional<String> label = this.getNodeValue(namedNodeMap, "lb"); //             lb 	Label
+
+        if(label.isPresent()){
+            String[] labels = label.get().split(" ");
+            testRequestResults.setUrlParameterLess(labels[0]);
+            testRequestResults.setPath(labels[1]);
+            testRequestResults.setMethod(labels[2]);
+        }
+
+
         Optional<String> latency = this.getNodeValue(namedNodeMap, "lt"); // lt 	Latency = time to initial response (milliseconds) - not all samplers support this
-        if(latency.isPresent()) testResults.setLatency(new Double(latency.get()));
+        if(latency.isPresent()) testRequestResults.setLatency(new Double(latency.get()));
 
         Optional<String> elapsedTime = this.getNodeValue(namedNodeMap, "t"); //             t	Elapsed time (milliseconds)
-        if(elapsedTime.isPresent()) testResults.setElapsedTime(new Double(elapsedTime.get()));
+        if(elapsedTime.isPresent()) testRequestResults.setElapsedTime(new Double(elapsedTime.get()));
 
-        Optional<String> url = this.getNodeValue(namedNodeMap, "lb"); //             lb 	Label
-        if(url.isPresent()) testResults.setUrl(url.get());
 
-        Optional<String> method = parseMethod(node, 0);
-        if(method.isPresent()) testResults.setMethod(method.get());
 
         Optional<String> requestCount = this.getNodeValue(namedNodeMap, "sc"); //            sc	Sample count (1, unless multiple samples are aggregated)
-        if(requestCount.isPresent()) testResults.setRequestCount(new Integer(requestCount.get()));
-        else testResults.setRequestCount(1);
+        if(requestCount.isPresent()) testRequestResults.setRequestCount(new Integer(requestCount.get()));
+        else testRequestResults.setRequestCount(1);
 
         Optional<String> result = this.getNodeValue(namedNodeMap, "s"); //            s	Success flag (true/false)
-        if(result.isPresent()) testResults.setSuccess((result.get().equals("true")? true:false));
+        if(result.isPresent()) testRequestResults.setSuccess((result.get().equals("true")? true:false));
 
         Optional<String> bytes = this.getNodeValue(namedNodeMap, "by"); //            by	Bytes
         try{
-            if(result.isPresent()) testResults.setSize(Long.valueOf(bytes.get()));
+            if(result.isPresent()) testRequestResults.setSize(Long.valueOf(bytes.get()));
         }catch(Exception e){}
 
-        return testResults;
+        return testRequestResults;
 
         /*
 
@@ -130,27 +141,62 @@ public class JMeterReadTestResults implements ReadTestsResults {
         return (x!=null) ? Optional.of(x.getTextContent()) : Optional.empty();
     }
 
-    @Override
-    public List<TestResult> getTestResults() {
-        List<TestResult> result = new ArrayList<>();
-        NodeList httpSamples = this.getHTTPSamples().orElse(null);
+    private List<TestRequestResult> getGeneralTestResults(){
+        List<TestRequestResult> result = new ArrayList<>();
+        NodeList httpSamples = this.getHTTPSamples(RESULTREPORTABSOLOUTEPATH).orElse(null);
 
         if(httpSamples!=null){
             for(int i = 0; i < httpSamples.getLength(); ++i){
                 Node node = httpSamples.item(i);
                 result.add(this.parseTestResult(node, i));
             }
+        }else{
+            System.out.println("GeneralTestResults NP: " + RESULTREPORTABSOLOUTEPATH);
         }
-
         return result;
     }
 
-    public List<EndpointGroupInfo> parseJsonEndpointGroupInfo() throws FileNotFoundException {
-        //Quelle: https://stackoverflow.com/a/29965924/5026265
-        //String resultsPath = Paths.get(this.reportPath, ENDPOINTREPORT).toString();
-        //JsonReader reader =  new JsonReader(new FileReader(resultsPath));;
-        //EndpointGroupInfo[] egis = new Gson().fromJson(reader, EndpointGroupInfo[].class);
-        //return Arrays.asList(egis);
-        return null;
+    private void addCapacity(TestResultGroup testResultGroup, String ssv){
+        if(ssv != null && !ssv.equals("")){
+            String[] _ssv = ssv.trim().split(" ");
+            String path = _ssv[0];
+            String method = _ssv[1];
+            Unit<String> maxCapacity = new Unit<>(_ssv[2], "User(s)/s");
+            ///vet/ POST 0.0
+            TestResult testResult = testResultGroup.getTestResult(path, method).orElse(null);
+            if(testResult==null){
+                System.out.println("Couldnt find: " + ssv);
+                testResultGroup.getResultGroups().forEach(x->System.out.println(x.getPath()+" "+x.getMethod()));
+                testResult = new TestResult(path, method, new ArrayList<>());
+                testResultGroup.getResultGroups().add(testResult);
+            }
+            testResult.setMaxCapacity(maxCapacity);
+        }
+    }
+
+    public void getAggregated(TestResultGroup testResultGroup){
+        Path aggregatedReportPath = Paths.get(CAPACITYREPORTABSOLOUTEPATH);
+        File f = new File(aggregatedReportPath.toAbsolutePath().toString());
+        if(f.exists()){
+            try (Stream<String> stream = Files.lines(aggregatedReportPath).skip(1)) {
+                stream.forEach(ssv -> this.addCapacity(testResultGroup, ssv));
+            }
+            catch (IOException e) {
+                System.err.println(e.toString());
+            }
+        }else{
+            System.out.println("Folder doesnt exist");
+            System.out.println(f.getAbsolutePath().toString());
+        }
+    }
+
+    @Override
+    public TestResultGroup getTestResult() {
+        List<TestRequestResult> generalTestRequestResults = this.getGeneralTestResults();
+        List<TestResult> testResults = this.parseTestResults(generalTestRequestResults);
+        TestResultGroup testResultGroup = this.parseTestResultGroup(testResults);
+        this.getAggregated(testResultGroup);
+        return testResultGroup;
     }
 }
+

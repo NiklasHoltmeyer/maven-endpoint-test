@@ -1,7 +1,7 @@
 package de.hsos.bachelorarbeit.nh.endpoint.coverage.frameworks.spring;
 
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.usecases.generateCoverage.EndPointUTIL;
-import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.Endpoint;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
 import org.reflections.Reflections;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

@@ -1,39 +1,36 @@
 package de.hsos.bachelorarbeit.nh.endpoint.generate.entities;
 
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.EndpointTest;
 
 import java.util.Objects;
 
-public class RESTEndpoint {
-    String path;
-    String method;
+public class RESTEndpoint extends Endpoint {
     EndpointTest endpointTest;
 
     public RESTEndpoint(String path, String method, EndpointTest endpointTest) {
-        this.path = path;
-        this.method = method;
+        super(path,method);
         this.endpointTest = endpointTest;
     }
 
     public boolean compare(String path, String method){
-        return Objects.equals(path, this.path) && Objects.equals(method, this.method);
+        return super.compare(path,method);
     }
 
     @Override
     public String toString() {
         return "RESTEndpoint{" +
-                "path='" + path + '\'' +
-                ", method='" + method + '\'' +
-                ", endpointTest=" + endpointTest +
+                "\tpath='" + this.getPath() + '\'' +
+                "\t, method='" + this.getMethod() + '\'' +
+                "\t, endpointTest=" + endpointTest +
                 '}';
     }
 
     public String getPath() {
-        return path;
+        return this.path;
     }
-
     public String getMethod() {
-        return method;
+        return this.method;
     }
 
     public EndpointTest getEndpointTest() {

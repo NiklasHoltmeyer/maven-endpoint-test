@@ -50,23 +50,34 @@ public class JMeterUtil {
         String allEndpointPath = Paths.get(destination, "all-endpoints.jmx").toAbsolutePath().toString();
         createTest(allEndpointPath);
         createCapacityTests(defaultPath);
+        createWatchResultTests(defaultPath);
+    }
+
+    private void createWatchResultTests(String defaultPath){
+        this.createTestPerEndpoint(defaultPath, "watchTests", "10");
     }
 
     private void createCapacityTests(String defaultPath){
-        String path = Paths.get(defaultPath, "capacityTests").toAbsolutePath().toString();
-        int loops = 1;
-        int threads = 1000;
-        int rampUpTime = threads;
+        this.createTestPerEndpoint(defaultPath, "capacityTests", "10");
+    }
+
+    private void createTestPerEndpoint(String defaultPath, String testName, String loops){
+        String path = Paths.get(defaultPath, testName).toAbsolutePath().toString();
+        String threads = "${THREADS}";
+        String rampUpTime = "$(${MAXLATENCY} * 10 + ${THREADS})";
 
         for(int i = 0; i < this.requests.size(); ++i){
-            Request request = this.requests.get(0);
+            Request request = this.requests.get(i);
             StringBuilder stringBuilder = new StringBuilder();
             this.addFileHeader(stringBuilder, testName);
             RESTEndpoint rE = request.getRestEndpoint();
 
-            String name = (rE.getPath()+rE.getMethod()).replace("/", "-").replace("\\", "-");
-            if(name.length() > 9) name = name.substring(0, 9);
-            name = name + ++i;
+            String requestPath = rE.getPath().replace("/", "-");
+            String requestMethod = rE.getMethod();
+
+
+            String name = requestPath + " " + requestMethod + " " + i;
+            //if(name.length() > 9) name = name.substring(0, 9);
 
             this.createThreadGroup(stringBuilder, loops, threads, rampUpTime,name);
 
@@ -402,6 +413,11 @@ public class JMeterUtil {
                 "            <stringProp name=\"Argument.value\">"+defaultMaxLatency+"</stringProp>\n" +
                 "            <stringProp name=\"Argument.metadata\">=</stringProp>\n" +
                 "          </elementProp>\n" +
+                "          <elementProp name=\"THREADS\" elementType=\"Argument\">\n" +
+                "            <stringProp name=\"Argument.name\">THREADS</stringProp>\n" +
+                "            <stringProp name=\"Argument.value\">${__P(threadCount,22)}</stringProp>\n" +
+                "            <stringProp name=\"Argument.metadata\">=</stringProp>\n" +
+                "          </elementProp>" +
                 "        </collectionProp>\n" +
                 "      </Arguments>\n" +
                 "      <hashTree/>\n");
@@ -420,7 +436,7 @@ public class JMeterUtil {
 
     }
 
-    private StringBuilder createThreadGroup(StringBuilder stringBuilder, int loops, int threads, int rampUpTime, String groupKey){
+    private StringBuilder createThreadGroup(StringBuilder stringBuilder, String loops, String threads, String rampUpTime, String groupKey){
         return stringBuilder.append("      <ThreadGroup guiclass=\"ThreadGroupGui\" testclass=\"ThreadGroup\" testname=\""+groupKey+"\" enabled=\"true\">\n" +
                 "        <stringProp name=\"ThreadGroup.on_sample_error\">stoptest</stringProp>\n" +
                 "        <elementProp name=\"ThreadGroup.main_controller\" elementType=\"LoopController\" guiclass=\"LoopControlPanel\" testclass=\"LoopController\" testname=\"Loop Controller\" enabled=\"true\">\n" +
@@ -434,6 +450,10 @@ public class JMeterUtil {
                 "        <stringProp name=\"ThreadGroup.delay\"></stringProp>\n" +
                 "      </ThreadGroup>\n"+
                 "      <hashTree>\n");
+    }
+
+    private StringBuilder createThreadGroup(StringBuilder stringBuilder, int loops, int threads, int rampUpTime, String groupKey){
+        return this.createThreadGroup(stringBuilder, "" + loops, "" + threads, "" + rampUpTime, groupKey);
     }
 
     private StringBuilder createThreadGroup(StringBuilder stringBuilder, String groupKey){
@@ -452,14 +472,15 @@ public class JMeterUtil {
     private StringBuilder createHTTPSampler(StringBuilder stringBuilder, Request request){
         RESTEndpoint restEndpoint = request.getRestEndpoint();
         EndpointTest endpointTest = restEndpoint.getEndpointTest();
-        stringBuilder.append("        <HTTPSamplerProxy guiclass=\"HttpTestSampleGui\" testclass=\"HTTPSamplerProxy\" testname=\""+request.getPath()+"\" enabled=\"true\">\n" +
+        String testName = restEndpoint.getPath() + " " + request.getPath() + " " + request.getRestEndpoint().getMethod();
+        stringBuilder.append("        <HTTPSamplerProxy guiclass=\"HttpTestSampleGui\" testclass=\"HTTPSamplerProxy\" testname=\""+testName+"\" enabled=\"true\">\n" +
                 "          <elementProp name=\"HTTPsampler.Arguments\" elementType=\"Arguments\" guiclass=\"HTTPArgumentsPanel\" testclass=\"Arguments\" testname=\"User Defined Variables\" enabled=\"true\">\n");
         this.addPayLoad(stringBuilder, endpointTest.request().payLoad())
                 .append("          </elementProp>\n" +
                 "          <stringProp name=\"HTTPSampler.domain\">${HOST}</stringProp>\n" +
                 "          <stringProp name=\"HTTPSampler.port\">${PORT}</stringProp>\n" +
                 "          <stringProp name=\"HTTPSampler.protocol\"></stringProp>\n" +
-                "          <stringProp name=\"HTTPSampler.contentEncoding\"></stringProp>\n" +
+                "          <stringProp name=\"HTTPSampler.contentEncoding\">application/json</stringProp>\n" +
                 "          <stringProp name=\"HTTPSampler.path\">"+request.getPath()+"</stringProp>\n" +
                 "          <stringProp name=\"HTTPSampler.method\">"+restEndpoint.getMethod()+"</stringProp>\n" +
                 "          <boolProp name=\"HTTPSampler.follow_redirects\">"+ this.toString(endpointTest.request().followRedirects())+"</boolProp>\n" +

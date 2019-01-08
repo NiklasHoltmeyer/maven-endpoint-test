@@ -2,15 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+<!--
     <groupId>com.github.NiklasHoltmeyer</groupId>
     <artifactId>maven-endpoint-test</artifactId>
-    <!--
-    <groupId>dev.local.test</groupId>
-    <artifactId>local.test</artifactId>
 -->
+    <groupId>local.com.github.NiklasHoltmeyer</groupId>
+    <artifactId>maven-endpoint-test</artifactId>
 
-    <version>3.2.3e</version>
+    <version>3.2.3f1</version>
     <packaging>maven-plugin</packaging>
 
     <name>maven-jmeter-test Maven Plugin</name>
@@ -125,14 +124,14 @@
         </dependency>
 
         <dependency>
-	    <groupId>com.github.NiklasHoltmeyer</groupId>
-	    <artifactId>maven-endpoint-test-annotations</artifactId>
+            <groupId>com.github.NiklasHoltmeyer</groupId>
+            <artifactId>maven-endpoint-test-annotations</artifactId>
             <version>${annotations.version}</version>
-<!--
-            <groupId>dev.local.test</groupId>
-            <artifactId>local.annnoooos</artifactId>
-            <version>3.2.3b</version>
--->
+            <!--
+                        <groupId>dev.local.test</groupId>
+                        <artifactId>local.annnoooos</artifactId>
+                        <version>3.2.3b</version>
+            -->
         </dependency>
     </dependencies>
 
@@ -224,4 +223,3 @@
         </repository>
     </distributionManagement>
 </project>
-

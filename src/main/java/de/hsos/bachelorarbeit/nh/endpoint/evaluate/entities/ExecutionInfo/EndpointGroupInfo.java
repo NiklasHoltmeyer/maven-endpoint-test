@@ -1,32 +1,18 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndPointExecutionInfo.EndpointExecutionInfo;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
+
 import java.util.List;
 
-public class EndpointGroupInfo {
-    String url;
-    String method;
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public class EndpointGroupInfo extends Endpoint {
     List<EndpointExecutionInfo> endpointExecutionInfos;
 
     public EndpointGroupInfo(String url, String method, List<EndpointExecutionInfo> endpointExecutionInfos) {
-        this.url = url;
-        this.method = method;
+        super(url, method);
         this.endpointExecutionInfos = endpointExecutionInfos;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
     }
 
     public List<EndpointExecutionInfo> getEndpointExecutionInfos() {
@@ -35,14 +21,5 @@ public class EndpointGroupInfo {
 
     public void setEndpointExecutionInfos(List<EndpointExecutionInfo> endpointExecutionInfos) {
         this.endpointExecutionInfos = endpointExecutionInfos;
-    }
-
-    @Override
-    public String toString() {
-        return "EndpointGroupInfo{" +
-                "url='" + url + '\'' +
-                ", method='" + method + '\'' +
-                ", endpointExecutionInfos=" + endpointExecutionInfos +
-                '}';
     }
 }

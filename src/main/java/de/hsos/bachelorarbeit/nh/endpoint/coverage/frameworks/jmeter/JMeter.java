@@ -52,7 +52,7 @@ public class JMeter implements EndpointTests {
                 }
                 matcher = httpMethod.matcher(sCurrentLine);
                 if(matcher.find()){
-                    currentRequest.setHttpMethod(matcher.group(1));
+                    currentRequest.setMethod(matcher.group(1));
                     continue;
                 }
             }

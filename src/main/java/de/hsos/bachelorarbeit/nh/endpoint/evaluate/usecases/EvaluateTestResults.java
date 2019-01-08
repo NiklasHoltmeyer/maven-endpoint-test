@@ -1,40 +1,29 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases;
-
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndpointGroupInfo;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestGroup;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResult;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
-
+//todo: xyz
 public class EvaluateTestResults {
-    List<TestGroup> testGroups;
-    List<TestResult> testResults;
+    //List<TestGroupOld> testGroupOlds;
+    //List<TestRequestResult> testRequestResults;
 
-    public EvaluateTestResults(ReadTestsResults readTestsResults, ReadExecutionInfo readExecutionInfo) {
-        this.testResults = readTestsResults.getTestResults();
-        this.testGroups = this.getTestGroups(this.testResults);
-        initValues();
-        addEndPointInfo(readExecutionInfo.getEndPointGroupInfo());
-    }
-
+    //public EvaluateTestResults(ReadTestsResults readTestsResults, ReadExecutionInfo readExecutionInfo) {
+        //this.testRequestResults = readTestsResults.getTestResults();
+        //this.testGroupOlds = this.getTestGroups(this.testRequestResults);
+        //initValues();
+        //addEndPointInfo(readExecutionInfo.getEndPointGroupInfo());
+    //}
+/*
     private void addEndPointInfo(List<EndpointGroupInfo> endPointGroupInfos) {
         for(EndpointGroupInfo endpointGroupInfo : endPointGroupInfos){
-            String path = endpointGroupInfo.getUrl().toLowerCase().trim();
+            String path = endpointGroupInfo.getUrlParameterLess().toLowerCase().trim();
             String method = endpointGroupInfo.getMethod().toLowerCase().trim();
 
-            TestGroup entry = this.testGroups.stream()
+            TestGroupOld entry = this.testGroupOlds.stream()
                     .filter(x -> x.getPath().toLowerCase().trim().equals(path) && x.getMethod().toLowerCase().trim().equals(method))
                     .findFirst()
                     .orElse(null);
 
             if(entry==null){
-                entry = new TestGroup(path, method, new ArrayList<>());
-                this.testGroups.add(entry);
+                entry = new TestGroupOld(path, method, new ArrayList<>());
+                this.testGroupOlds.add(entry);
             }
             entry.setExecutionInfos(endpointGroupInfo.getEndpointExecutionInfos());
         }
@@ -46,40 +35,44 @@ public class EvaluateTestResults {
         setThroughPut();
     }
 
-    private List<TestGroup> getTestGroups(List<TestResult> testRestults){
-        List<TestGroup> result = new ArrayList<>();
-        Map<String, Map<String, List<TestResult>>> stringMapMap = testRestults.stream()
+    private List<TestGroupOld> getTestGroups(List<TestRequestResult> testRestults){
+        List<TestGroupOld> result = new ArrayList<>();
+        Map<String, Map<String, List<TestRequestResult>>> stringMapMap = testRestults.stream()
                 .collect(
-                        Collectors.groupingBy(TestResult::getUrl,
-                                Collectors.groupingBy(TestResult::getMethod))
+                        Collectors.groupingBy(TestRequestResult::getUrlParameterLess,
+                                Collectors.groupingBy(TestRequestResult::getMethod))
                 );
 
         for(String path : stringMapMap.keySet()){
-            Map<String, List<TestResult>> stringListMap = stringMapMap.get(path);
+            Map<String, List<TestRequestResult>> stringListMap = stringMapMap.get(path);
             for(String method : stringListMap.keySet()){
-                List<TestResult> list = stringListMap.get(method);
-                result.add(new TestGroup(path, method, list));
+                List<TestRequestResult> list = stringListMap.get(method);
+                result.add(new TestGroupOld(path, method, list));
             }
         }
         return result;
     }
 
-    private Optional<TestGroup> getGroupByKey(String key){
-        return this.testGroups.stream().filter(g -> g.getPath().equals(key)).findFirst();
+    public List<TestGroupOld> getTestGroupOlds(){
+        return this.testGroupOlds;
     }
 
-    public void setMeanTurnaroundTime(TestGroup testGroup){
-        double mtt = testGroup.getTestResults().stream().mapToDouble(TestResult::getElapsedTime).average().orElse(Double.NaN);
-        testGroup.setMeanTurnaroundTime(mtt);
+    private Optional<TestGroupOld> getGroupByKey(String key){
+        return this.testGroupOlds.stream().filter(g -> g.getPath().equals(key)).findFirst();
     }
 
-    public void setMeanResponseTime(TestGroup testGroup){
-        double mrt = testGroup.getTestResults().stream().mapToDouble(TestResult::getLatency).average().orElse(Double.NaN);
-        testGroup.setMeanResponseTime(mrt);
+    public void setMeanTurnaroundTime(TestGroupOld testGroupOld){
+        double mtt = testGroupOld.getTestRequestResults().stream().mapToDouble(TestRequestResult::getElapsedTime).average().orElse(Double.NaN);
+        testGroupOld.setMeanTurnaroundTime(mtt);
+    }
+
+    public void setMeanResponseTime(TestGroupOld testGroupOld){
+        double mrt = testGroupOld.getTestRequestResults().stream().mapToDouble(TestRequestResult::getLatency).average().orElse(Double.NaN);
+        testGroupOld.setMeanResponseTime(mrt);
     }
 
     public void setMeanResponseTime(){
-        this.testGroups
+        this.testGroupOlds
                 .stream()
                 .forEach(tG -> {
                     if(tG.getMeanResponseTime() == null){
@@ -89,7 +82,7 @@ public class EvaluateTestResults {
     }
 
     public void setMeanTurnAroundTime(){
-        this.testGroups
+        this.testGroupOlds
                 .stream()
                 .forEach(tG -> {
                     if(tG.getMeanTurnaroundTime() == null){
@@ -98,16 +91,16 @@ public class EvaluateTestResults {
                 });
     }
 
-    private Double getSystemMean(ToDoubleFunction<? super TestResult> mapper){
-        return this.testResults.stream().mapToDouble(mapper).average().orElse(Double.NaN);
+    private Double getSystemMean(ToDoubleFunction<? super TestRequestResult> mapper){
+        return this.testRequestResults.stream().mapToDouble(mapper).average().orElse(Double.NaN);
     }
 
     public Double getSystemMeanResponseTime(){
-        return this.getSystemMean(TestResult::getLatency);
+        return this.getSystemMean(TestRequestResult::getLatency);
     }
 
     public Double getSystemMeanTurnaroundTime(){
-        return this.getSystemMean(TestResult::getElapsedTime);
+        return this.getSystemMean(TestRequestResult::getElapsedTime);
     }
 
     public Double getSystemMeanResponseTimeAdequacy(double target){
@@ -119,25 +112,27 @@ public class EvaluateTestResults {
     }
 
     public void setThroughPut(){
-        for(TestGroup testGroup : this.testGroups){
-            List<TestResult> testResults = testGroup.getTestResults();
-            double summedElapsedTime = testResults.stream().map(TestResult::getElapsedTime).collect(Collectors.summingDouble(Double::doubleValue));
-            double avgElapsedTime = summedElapsedTime / testResults.size();
+        for(TestGroupOld testGroupOld : this.testGroupOlds){
+            List<TestRequestResult> testRequestResults = testGroupOld.getTestRequestResults();
+            double summedElapsedTime = testRequestResults.stream().map(TestRequestResult::getElapsedTime).collect(Collectors.summingDouble(Double::doubleValue));
+            double avgElapsedTime = summedElapsedTime / testRequestResults.size();
             double throughPut = 1000 / avgElapsedTime;
-            testGroup.setThroughput(throughPut);
+            testGroupOld.setThroughput(throughPut);
         }
     }
 
     public boolean testPassed(){
-        Optional<TestGroup> testGroup = this.testGroups.stream().filter(tG -> !tG.isSuccess()).findFirst();
+        Optional<TestGroupOld> testGroup = this.testGroupOlds.stream().filter(tG -> !tG.isSuccess()).findFirst();
         return !testGroup.isPresent();
     }
 
     @Override
     public String toString() {
         return "EvaluateTestResults{" +
-                "testGroups=" + testGroups +
+                "testGroupOlds=" + testGroupOlds +
+                ", testRequestResults=" + testRequestResults +
                 '}';
     }
+    */
 }
 

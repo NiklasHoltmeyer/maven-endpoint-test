@@ -1,87 +1,131 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities;
 
-public class TestResult {
-    /**
-     * Time between sending
-     */
-    Double latency;
-    /**
-     * Time between sending the request & last response
-     */
-    Double elapsedTime;
-    String url;
-    String method;
-    Integer requestCount;
-    boolean success;
-    long size;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndPointExecutionInfo.EndpointExecutionInfo;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Unit;
+
+import java.util.List;
+
+public class TestResult extends Endpoint{
+    List<TestRequestResult> testRequestResults;
+
+    Double averageLatency;
+    Double averageElapsedTime;
+    Unit<String> maxCapacity;
+
+    Unit<Double> averageSize;
+    Unit<Double> throughPut;
+
+    List<EndpointExecutionInfo> endpointExecutionInfos;
 
 
-    public Double getLatency() {
-        return latency;
+    public TestResult(String path, String method, List<TestRequestResult> testRequestResults) {
+        super(path, method);
+        this.testRequestResults = testRequestResults;
+
+        init();
     }
 
-    public void setLatency(Double latency) {
-        this.latency = latency;
+    private void init(){
+        Double summedLatency = 0.0;
+        Double summedElapsedTime = 0.0;
+        long summedSize = 0L;
+
+        for(TestRequestResult result : testRequestResults){
+            summedLatency += result.getLatency();
+            summedElapsedTime += result.getElapsedTime();
+            summedSize += result.getSize();
+        }
+
+        int count = testRequestResults.size();
+        if(count > 0){
+            averageLatency = summedLatency / count;
+            averageElapsedTime = summedElapsedTime / count;
+            averageSize = new Unit<>((double)(summedSize / count), "b");
+        }
+
+        calculateThroughPut();
     }
 
-    public String getUrl() {
-        return url;
+    public List<TestRequestResult> getTestRequestResults() {
+        return testRequestResults;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setTestRequestResults(List<TestRequestResult> testRequestResults) {
+        this.testRequestResults = testRequestResults;
     }
 
-    public Double getElapsedTime() {
-        return elapsedTime;
+    public Double getAverageLatency() {
+        return averageLatency;
     }
 
-    public void setElapsedTime(Double elapsedTime) {
-        this.elapsedTime = elapsedTime;
+    public void setAverageLatency(Double averageLatency) {
+        this.averageLatency = averageLatency;
     }
 
-    public Integer getRequestCount() {
-        return requestCount;
+    public Double getAverageElapsedTime() {
+        return averageElapsedTime;
     }
 
-    public void setRequestCount(Integer requestCount) {
-        this.requestCount = requestCount;
+    public void setAverageElapsedTime(Double averageElapsedTime) {
+        this.averageElapsedTime = averageElapsedTime;
     }
 
-    public boolean isSuccess() {
-        return success;
+
+    public boolean isFailed(){
+        return this.testRequestResults.stream().filter(tr -> !tr.isSuccess()).findFirst().orElse(null) != null;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
+    private void calculateThroughPut(){
+        double totalTime = this.testRequestResults.stream().mapToDouble(TestRequestResult::getElapsedTime).sum();
+        double totalRequests = this.testRequestResults.stream().mapToDouble(TestRequestResult::getRequestCount).sum();
+        double throughPutMS = totalRequests / totalTime;
+        this.throughPut = new Unit<>(throughPutMS / 1000, "s");
     }
 
-    public long getSize() {
-        return size;
+    public Unit<Double> getThroughPut() {
+        return throughPut;
     }
 
-    public void setSize(long size) {
-        this.size = size;
+    public void setThroughPut(Unit<Double> throughPut) {
+        this.throughPut = throughPut;
     }
 
-    public String getMethod() {
-        return method;
+    public Unit<String> getMaxCapacity() {
+        return maxCapacity;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
+    public void setMaxCapacity(Unit<String> maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
+
+    public void setAverageSize(Unit<Double> averageSize) {
+        this.averageSize = averageSize;
+    }
+
+    public Unit<Double> getAverageSize() {
+        return averageSize;
+    }
+
+    public List<EndpointExecutionInfo> getEndpointExecutionInfos() {
+        return endpointExecutionInfos;
+    }
+
+    public void setEndpointExecutionInfos(List<EndpointExecutionInfo> endpointExecutionInfos) {
+        this.endpointExecutionInfos = endpointExecutionInfos;
     }
 
     @Override
     public String toString() {
         return "TestResult{" +
-                "latency=" + latency +
-                ", elapsedTime=" + elapsedTime +
-                ", url='" + url + '\'' +
-                ", method='" + method + '\'' +
-                ", requestCount=" + requestCount +
-                ", success=" + success +
-                ", size=" + size +
+                "\t  path='" + this.getPath() + '\'' + "\n" +
+                "\t, method='" + this.getMethod() + '\'' + "\n" +
+                "\t, testRequestResults=" + testRequestResults + "\n" +
+                "\t, averageLatency=" + averageLatency + "\n" +
+                "\t, averageElapsedTime=" + averageElapsedTime + "\n" +
+                "\t, maxCapacity=" + maxCapacity + "\n" +
+                "\t, averageSize=" + averageSize + "\n" +
+                "\t, throughPut=" + throughPut + "\n" +
                 '}';
     }
 }

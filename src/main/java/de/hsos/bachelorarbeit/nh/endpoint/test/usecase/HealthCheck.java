@@ -40,7 +40,11 @@ public class HealthCheck {
     }
 
     public boolean isAccessable(){
-        String url = host + ":" + port + path;
+        return isAccessable(path);
+    }
+
+    public boolean isAccessable(String relative){
+        String url = host + ":" + port + relative;
         if(!url.startsWith("http")) url = "http://"+url;
         int start = maxIterations;
         while(maxIterations-- >= 0){

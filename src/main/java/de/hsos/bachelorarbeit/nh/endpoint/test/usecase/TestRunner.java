@@ -1,6 +1,7 @@
 package de.hsos.bachelorarbeit.nh.endpoint.test.usecase;
 
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.TestRunnerResult;
+import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +29,15 @@ public abstract class TestRunner {
         }else if(!doesPathExist(testPath)){
             result.setErrorMessage("Test-Path: " + testPath + " doest NOT exist!");
         }else{
+            this.resetActurators();
             return this.performTests(result);
         }
         return result;
+    }
+
+    protected void resetActurators(){
+        String resetActurator = "/actuator/executeinfo/reset";
+        this.healthCheck.isAccessable(resetActurator);
     }
 
     protected List<Path> getFiles(String path, String suffix) throws IOException {
@@ -88,5 +95,5 @@ public abstract class TestRunner {
         return new File(path).getAbsoluteFile().exists();
     }
     protected abstract TestRunnerResult performTests(TestRunnerResult tr);
-    public abstract void collectActuratorInfos(String url);
+    public abstract void collectActuratorInfos(String url) throws Exception;
 }

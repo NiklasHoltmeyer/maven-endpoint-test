@@ -2,7 +2,7 @@ package de.hsos.bachelorarbeit.nh.endpoint.coverage;
 
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.usecases.generateCoverage.GenerateCoverage;
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.CoverageResult;
-import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.Endpoint;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.Request;
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.frameworks.jmeter.JMeter;
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.frameworks.spring.SpringUTIL;
@@ -95,7 +95,7 @@ public class JMeterCoverageMojo extends AbstractMojo {
                 throw new Exception("Target GenerateCoverage: " + threshHold + "%, Actual: " + coverageResult.getCoverage());
             }
         } catch (Exception e) {
-            throw new MojoExecutionException(e.toString());
+            throw new MojoFailureException(e.toString());
         }
     }
 

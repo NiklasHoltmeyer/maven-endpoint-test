@@ -1,5 +1,7 @@
 package de.hsos.bachelorarbeit.nh.endpoint.coverage.entities;
 
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

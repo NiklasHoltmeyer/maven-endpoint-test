@@ -1,11 +1,15 @@
 package de.hsos.bachelorarbeit.nh.endpoint.test;
 
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.TestRunnerResult;
-import de.hsos.bachelorarbeit.nh.endpoint.test.jmeter.JMeterTestRunner;
+import de.hsos.bachelorarbeit.nh.endpoint.test.frameworks.jmeter.JMeterTestRunner;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.HealthCheck;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.TestRunner;
+import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.Watch;
+import de.hsos.bachelorarbeit.nh.endpoint.util.frameworks.GsonJsonUtil;
+import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -13,7 +17,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.nio.file.Paths;
 
 @Mojo(name = "test", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
-public class TestMojo extends AbstractMojo {
+public class TestMojo extends AbstractMojo{
     @Parameter(required = true, readonly =  true)
     private String destination;
 
@@ -28,16 +32,22 @@ public class TestMojo extends AbstractMojo {
     @Parameter(readonly =  true, defaultValue = "8080")
     int defaultPort;
 
-
     @Override
-    public void execute() throws MojoExecutionException {
+    public void execute() throws MojoFailureException {
         if(destination.endsWith(".jmx")) destination = Paths.get(destination).getParent().toAbsolutePath().toString();
         String healthPath = "/actuator/info";
-
         HealthCheck hc = new HealthCheck(defaultHost, defaultPort, healthPath);
-        TestRunner testRunner = new JMeterTestRunner(jMeterFullPath, jMeterCMDPluginFullPath, destination, hc);
+        JsonUtil jsonUtil = new GsonJsonUtil();
+        Watch watch = new Watch(defaultHost,defaultPort+"", jsonUtil);
+        TestRunner testRunner = new JMeterTestRunner(getLog(), jMeterFullPath, jMeterCMDPluginFullPath, destination, hc, watch);
         TestRunnerResult tr = testRunner.runTests();
-        testRunner.collectActuratorInfos("http://" + defaultHost + ":"+defaultPort+"/actuator/executeinfo");
-        getLog().info(tr.toString());
+
+        try {
+            getLog().info("URL: " + "http://" + defaultHost + ":"+defaultPort+"/actuator/executeinfo");
+            testRunner.collectActuratorInfos("http://" + defaultHost + ":"+defaultPort+"/actuator/executeinfo");
+        } catch (Exception e) {
+            throw new MojoFailureException(e.toString());
+        }
     }
 }
+

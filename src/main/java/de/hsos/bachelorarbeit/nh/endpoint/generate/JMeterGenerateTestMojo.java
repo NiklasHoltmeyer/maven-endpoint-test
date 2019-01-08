@@ -7,6 +7,7 @@ import de.hsos.bachelorarbeit.nh.endpoint.generate.entities.Request;
 import de.hsos.bachelorarbeit.nh.endpoint.util.ClassLoaderLoader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -36,9 +37,11 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
     int defaultMaxLatency = 50000;
 
     @Override
-    public void execute() throws MojoExecutionException{
+    public void execute() throws MojoFailureException {
         String baseDir = project.getBasedir().getAbsolutePath();
         String jmxAbsolutePath = (destination.startsWith(baseDir)) ? Paths.get(destination).toString() :  Paths.get(baseDir, destination).toString(); // (jmx=absolute)? jmx : absolutePath(jmx)
+
+        getLog().info("Path: " + jmxAbsolutePath);
 
         Thread.currentThread().setContextClassLoader(new ClassLoaderLoader().getClassLoader(project));
 
@@ -63,7 +66,7 @@ public class JMeterGenerateTestMojo extends AbstractMojo {
             getLog().error("******************************************");
             getLog().error("***** J-Meter Test Generated failed! ******");
             getLog().error("******************************************");
-            throw new MojoExecutionException(e.toString());
+            throw new MojoFailureException(e.toString());
         }
 
     }

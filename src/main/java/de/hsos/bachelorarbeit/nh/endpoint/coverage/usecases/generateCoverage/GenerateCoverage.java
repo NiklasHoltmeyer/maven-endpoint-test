@@ -1,7 +1,7 @@
 package de.hsos.bachelorarbeit.nh.endpoint.coverage.usecases.generateCoverage;
 
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.CoverageResult;
-import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.Endpoint;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.Request;
 import org.apache.maven.plugin.logging.Log;
 import java.util.AbstractMap;
@@ -36,7 +36,7 @@ public class GenerateCoverage {
                         .stream()
                         .filter(x->{
                             Request r = x.getKey();
-                            return endpoint.compare(r.getPath(), r.getHttpMethod());
+                            return endpoint.compare(r.getPath(), r.getMethod());
                         })
                 .findFirst().orElse(null);
 

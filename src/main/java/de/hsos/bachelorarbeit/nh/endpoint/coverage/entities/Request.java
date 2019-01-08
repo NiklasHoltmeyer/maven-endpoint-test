@@ -1,48 +1,33 @@
 package de.hsos.bachelorarbeit.nh.endpoint.coverage.entities;
 
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.util.CountedHashMapEntity;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
+
 import java.util.Objects;
 
-public class Request implements CountedHashMapEntity {
-    String path;
-    String httpMethod;
-
-    public String getPath() {
-        return path;
+public class Request extends Endpoint implements CountedHashMapEntity {
+    public Request(String path, String method) {
+        super(path, method);
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getHttpMethod() {
-        return httpMethod;
-    }
-
-    public void setHttpMethod(String httpMethod) {
-        this.httpMethod = httpMethod;
+    public Request(){
     }
 
     @Override
     public String toString() {
-        return "Request{" +
-                "path='" + path + '\'' +
-                ", httpMethod='" + httpMethod + '\'' +
-                '}';
+        return "Request{\n" +
+                super.toString()+
+                "}";
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Request request = (Request) o;
-        return Objects.equals(path, request.path) &&
-                Objects.equals(httpMethod, request.httpMethod);
+        return super.equals(0);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(path, httpMethod);
+        return super.hashCode();
     }
 
     @Override

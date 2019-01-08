@@ -1,6 +1,7 @@
 package de.hsos.bachelorarbeit.nh.endpoint.util;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
@@ -9,7 +10,7 @@ import java.net.URLClassLoader;
 import java.util.List;
 
 public class ClassLoaderLoader {
-    public ClassLoader getClassLoader(MavenProject project) throws MojoExecutionException
+    public ClassLoader getClassLoader(MavenProject project) throws MojoFailureException
     {
         //Quelle: https://stackoverflow.com/a/13220011/5026265
         try
@@ -27,7 +28,7 @@ public class ClassLoaderLoader {
         }
         catch (Exception e)//gotta catch em all
         {
-            throw new MojoExecutionException("Couldn't create a classloader.", e);
+            throw new MojoFailureException("Couldn't create a classloader.", e);
         }
     }
 }
