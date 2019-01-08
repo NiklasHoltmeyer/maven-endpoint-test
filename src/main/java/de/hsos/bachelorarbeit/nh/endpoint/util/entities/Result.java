@@ -2,7 +2,7 @@ package de.hsos.bachelorarbeit.nh.endpoint.util.entities;
 
 public class Result {
     private boolean success = true;
-    private String errorMessage="";
+    private String errorMessage;
 
     public Result(boolean success, String errorMessage) {
         this.success = success;

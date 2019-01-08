@@ -69,7 +69,8 @@ public class TestRequestResult extends Endpoint{
     }
 
     public boolean compareServletURL(String url, String method){
-        return this.getMethod().equals(method) && this.getPath().equals(url);
+        return method.equals(this.method) &&
+                (this.getPath() + "/").replace("//", "/").equals((url + "/").replace("//", "/"));
     }
 
     @Override

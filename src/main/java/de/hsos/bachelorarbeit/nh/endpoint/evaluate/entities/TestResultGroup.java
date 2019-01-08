@@ -46,6 +46,4 @@ public class TestResultGroup {
                 .filter(x->x.compareServletURL(path, method))
                 .findFirst();
     }
-
-
 }

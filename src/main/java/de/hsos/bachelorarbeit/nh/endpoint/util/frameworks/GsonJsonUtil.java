@@ -4,13 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndpointGroupInfo;
-import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Optional;
 
 public class GsonJsonUtil implements JsonUtil {
     @Override
@@ -49,7 +46,7 @@ public class GsonJsonUtil implements JsonUtil {
     }
 
     private Gson getGson(){
-        return new GsonBuilder().serializeSpecialFloatingPointValues().serializeNulls().setPrettyPrinting().create();
+        return new GsonBuilder().serializeSpecialFloatingPointValues().setPrettyPrinting().create();
     }
 
     private InputStreamReader getInputStream(String url) throws IOException{

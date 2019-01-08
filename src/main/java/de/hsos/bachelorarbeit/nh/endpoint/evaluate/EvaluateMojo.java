@@ -5,6 +5,7 @@ import de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.jmeter.JMeterReadT
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.CombineResults;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadExecutionInfo;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadTestsResults;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadWatchResults;
 import de.hsos.bachelorarbeit.nh.endpoint.util.frameworks.GsonJsonUtil;
 import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
 import org.apache.maven.plugin.AbstractMojo;
@@ -28,7 +29,13 @@ public class EvaluateMojo  extends AbstractMojo{
         String reportPath = Paths.get(destination, "reports").toAbsolutePath().toString();
         //String allEndpointResultPath = Paths.get(reportPath, "all-endpoints.jmx", "results.xml").toAbsolutePath().toString();
         ReadTestsResults readTestsResults;
+        ReadWatchResults readWatchResults;
         JsonUtil jsonUtil = new GsonJsonUtil();
+        try{
+            readWatchResults = new ReadWatchResults(jsonUtil, reportPath);
+        }catch (FileNotFoundException e) {
+            throw new MojoFailureException(e.toString());
+        }
         try {
             readTestsResults = new JMeterReadTestResults(reportPath);
         } catch (FileNotFoundException e) {
@@ -43,7 +50,7 @@ public class EvaluateMojo  extends AbstractMojo{
 
         CombineResults cR = null;
         try {
-            cR = new CombineResults(readTestsResults, readExecutionInfo);
+            cR = new CombineResults(readTestsResults, readExecutionInfo, readWatchResults);
         } catch (Exception e) {
             e.printStackTrace();
             throw new MojoFailureException(e.toString());

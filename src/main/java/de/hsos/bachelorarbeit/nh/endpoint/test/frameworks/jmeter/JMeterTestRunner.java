@@ -3,7 +3,7 @@ package de.hsos.bachelorarbeit.nh.endpoint.test.frameworks.jmeter;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndPointExecutionInfo.EndpointExecutionInfo;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.CapacityResult;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.TestRunnerResult;
-import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResultGroup;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.WatchResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.HealthCheck;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.TestRunner;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.Watch;
@@ -35,6 +35,7 @@ public class JMeterTestRunner extends TestRunner {
         this.jMeterFullPath = jMeterFullPath;
         this.jMeterCMDPluginFullPath=jMeterCMDPluginFullPath;
         this.log=log;
+        this.watch=watch;
     }
 
     @Override
@@ -69,8 +70,11 @@ public class JMeterTestRunner extends TestRunner {
             log.error(e.toString());
             e.printStackTrace();
         }
-        List<WatchResultGroup> wList = getReportFiles("watchTests")
-                .stream().map(x->this.performWatchTests(x))
+
+        List<WatchResultGroup> wList = getReportFiles("watchtests")
+                .stream()
+                .map(x->this.performWatchTests(x))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         Path watchResultPath = Paths.get(testPath, "reports", "watchTests", "watch.ssv");
@@ -82,7 +86,6 @@ public class JMeterTestRunner extends TestRunner {
             e.printStackTrace();
         }
         log.info("Tests finished!");
-
         return tr;
     }
 
@@ -95,15 +98,27 @@ public class JMeterTestRunner extends TestRunner {
         String path = getPath(_jmxPath).orElse(null);
         String method = getMethod(_jmxPath).orElse(null);
 
-        System.out.println("PerformanceCapacityTest: " + path + "@" + method);
+        System.out.println("PerformanceWatchTest: " + path + "@" + method);
 
         Pair<String, String> pair = new Pair<String, String>("threadCount", "10");
         List<Pair<String, String>> pairList =  Arrays.asList(pair);
         this.watch.start();
         TestRunnerResult tr = runTest(_reportPath, _jmxPath, _resultPath, pairList, true);
-        WatchResultGroup wrg = this.watch.stop();
-        wrg.setMethod(method);
-        wrg.setPath(path);
+        WatchResultGroup wrg = null;
+        try {
+            wrg = this.watch.stop();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+        if(wrg!=null){
+            wrg.setMethod(method);
+            wrg.setPath(path);
+        }else{
+            System.out.println("performWatchTests@NP");
+            return null;
+        }
+
         return wrg;
     }
 
@@ -143,13 +158,12 @@ public class JMeterTestRunner extends TestRunner {
         String units[] = null;
         if(!watchResultGroups.isEmpty()){
             WatchResultGroup wrg = watchResultGroups.get(0);
-            units = new String[]{wrg.getCpuWatchResult().getAverage().getUnit(), wrg.getMemoryWatchResult().getAverage().getUnit()};
+            units = new String[]{wrg.getCpu().getAverage().getUnit(), wrg.getMemory().getAverage().getUnit()};
         }
         if(units != null && units.length > 1){
-            Double cpuAVG = watchResultGroups.stream().mapToDouble(wr->wr.getCpuWatchResult().getAverage().getValue()).average().orElse(Double.NaN);
-            Double memoryAVG = watchResultGroups.stream().mapToDouble(wr->wr.getMemoryWatchResult().getAverage().getValue()).average().orElse(Double.NaN);
-            sb.append(cpuAVG).append(" ").append(units[0]).append("")
-            .append(memoryAVG).append(units[1]);
+            Double cpuAVG = watchResultGroups.stream().mapToDouble(wr->wr.getCpu().getAverage().getValue()).average().orElse(Double.NaN);
+            Double memoryAVG = watchResultGroups.stream().mapToDouble(wr->wr.getMemory().getAverage().getValue()).average().orElse(Double.NaN);
+            sb.append(cpuAVG).append(" ").append(units[0]).append(" ").append(memoryAVG).append(" ").append(units[1]);
         }
         return sb.toString();
     }
@@ -183,8 +197,8 @@ public class JMeterTestRunner extends TestRunner {
         String path = getPath(_jmxPath).orElse(null);
         String method = getMethod(_jmxPath).orElse(null);
         System.out.println("PerformanceCapacityTest: " + path + "@" + method);
-        //int maxCapacity = performMaxCapacityTest(_jmxPath, _reportPath, _resultPath, 0, 20);
-        int maxCapacity = 1;
+        int maxCapacity = performMaxCapacityTest(_jmxPath, _reportPath, _resultPath, 0, 20);
+        //int maxCapacity = 1;
         CapacityResult result = new CapacityResult(path, method, maxCapacity);
         return result;
     }

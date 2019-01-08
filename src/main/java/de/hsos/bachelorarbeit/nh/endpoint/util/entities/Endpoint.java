@@ -24,7 +24,8 @@ public class Endpoint {
     }
 
     public boolean compare(String path, String method){
-        return Objects.equals(path, this.path) && Objects.equals(method, this.method);
+        return (path + "/").replace("//", "/").equals((this.path + "/").replace("//", "/")) &&
+                method.equals(this.method);
     }
 
     @JsonIgnore

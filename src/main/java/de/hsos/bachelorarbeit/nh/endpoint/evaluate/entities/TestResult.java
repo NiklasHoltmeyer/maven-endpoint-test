@@ -3,11 +3,13 @@ package de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndPointExecutionInfo.EndpointExecutionInfo;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Unit;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.WatchResultGroup;
 
 import java.util.List;
 
 public class TestResult extends Endpoint{
-    List<TestRequestResult> testRequestResults;
+    transient List<TestRequestResult> testRequestResults;
+    WatchResultGroup watches;
 
     Double averageLatency;
     Double averageElapsedTime;
@@ -18,11 +20,9 @@ public class TestResult extends Endpoint{
 
     EndpointExecutionInfo endpointExecutionInfosAverage;
 
-
     public TestResult(String path, String method, List<TestRequestResult> testRequestResults) {
         super(path, method);
         this.testRequestResults = testRequestResults;
-
         init();
     }
 
@@ -128,17 +128,28 @@ public class TestResult extends Endpoint{
         this.endpointExecutionInfosAverage = endpointExecutionInfosAverage;
     }
 
+    public WatchResultGroup getWatches() {
+        return watches;
+    }
+
+    public void setWatches(WatchResultGroup watches) {
+        this.watches = watches;
+    }
+
+
     @Override
     public String toString() {
         return "TestResult{" +
-                "\t  path='" + this.getPath() + '\'' + "\n" +
-                "\t, method='" + this.getMethod() + '\'' + "\n" +
-                "\t, testRequestResults=" + testRequestResults + "\n" +
-                "\t, averageLatency=" + averageLatency + "\n" +
-                "\t, averageElapsedTime=" + averageElapsedTime + "\n" +
-                "\t, maxCapacity=" + maxCapacity + "\n" +
-                "\t, averageSize=" + averageSize + "\n" +
-                "\t, throughPut=" + throughPut + "\n" +
+                "\ttestRequestResults=" + testRequestResults +
+                "\t, watches=" + watches +
+                "\t, averageLatency=" + averageLatency +
+                "\t, averageElapsedTime=" + averageElapsedTime +
+                "\t, maxCapacity=" + maxCapacity +
+                "\t, averageSize=" + averageSize +
+                "\t, throughPut=" + throughPut +
+                "\t, endpointExecutionInfosAverage=" + endpointExecutionInfosAverage +
+                "\t, path='" + path + '\'' +
+                "\t, method='" + method + '\'' +
                 '}';
     }
 }
