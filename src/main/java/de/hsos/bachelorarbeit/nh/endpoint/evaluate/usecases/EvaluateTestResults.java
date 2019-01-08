@@ -25,7 +25,7 @@ public class EvaluateTestResults {
                 entry = new TestGroupOld(path, method, new ArrayList<>());
                 this.testGroupOlds.add(entry);
             }
-            entry.setExecutionInfos(endpointGroupInfo.getEndpointExecutionInfos());
+            entry.setExecutionInfos(endpointGroupInfo.getEndpointExecutionInfoAveraged());
         }
     }
 

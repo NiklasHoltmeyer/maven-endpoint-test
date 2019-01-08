@@ -10,11 +10,13 @@ import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.nio.file.Paths;
+import java.util.List;
 
 @Mojo(name = "test", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
 public class TestMojo extends AbstractMojo{
@@ -34,20 +36,22 @@ public class TestMojo extends AbstractMojo{
 
     @Override
     public void execute() throws MojoFailureException {
+        Log log = getLog();
         if(destination.endsWith(".jmx")) destination = Paths.get(destination).getParent().toAbsolutePath().toString();
         String healthPath = "/actuator/info";
+        String exeInfiURL = "http://" + defaultHost + ":"+defaultPort+"/actuator/executeinfo";
         HealthCheck hc = new HealthCheck(defaultHost, defaultPort, healthPath);
         JsonUtil jsonUtil = new GsonJsonUtil();
         Watch watch = new Watch(defaultHost,defaultPort+"", jsonUtil);
-        TestRunner testRunner = new JMeterTestRunner(getLog(), jMeterFullPath, jMeterCMDPluginFullPath, destination, hc, watch);
+        TestRunner testRunner = new JMeterTestRunner(log, jMeterFullPath, jMeterCMDPluginFullPath, destination, hc, watch);
         TestRunnerResult tr = testRunner.runTests();
 
         try {
-            getLog().info("URL: " + "http://" + defaultHost + ":"+defaultPort+"/actuator/executeinfo");
-            testRunner.collectActuratorInfos("http://" + defaultHost + ":"+defaultPort+"/actuator/executeinfo");
+            testRunner.collectActuratorInfos(exeInfiURL);
         } catch (Exception e) {
             throw new MojoFailureException(e.toString());
         }
     }
 }
+
 

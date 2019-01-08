@@ -1,16 +1,12 @@
 package de.hsos.bachelorarbeit.nh.endpoint.test.frameworks.jmeter;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndPointExecutionInfo.EndpointExecutionInfo;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.CapacityResult;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.TestRunnerResult;
-import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResult;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.HealthCheck;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.TestRunner;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.Watch;
-import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Unit;
 import de.hsos.bachelorarbeit.nh.endpoint.util.frameworks.GsonJsonUtil;
 import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
 import javafx.util.Pair;
@@ -47,6 +43,7 @@ public class JMeterTestRunner extends TestRunner {
         if(!tr.isSuccess()) return tr;
 
         log.info("Start-Test(s)");
+        System.out.println("Start-Test(s)");
         TestRunnerResult validationTests = testPaths.stream()
                 .filter(x->x.getFileName().toString().toLowerCase(Locale.GERMAN).endsWith("all-endpoints.jmx"))
                 .map(this::startTest)
@@ -263,7 +260,7 @@ public class JMeterTestRunner extends TestRunner {
     @Override
     public void collectActuratorInfos(String url) throws Exception {
         JsonUtil jsonUtil = new GsonJsonUtil();
-        JsonArray json = jsonUtil.getJson(url, JsonArray.class);
+        List<EndpointExecutionInfo>  json = jsonUtil.fromJsonURL(url, List.class);
         String dest = Paths.get(this.testPath, "reports", "acturator-executeinfo.json").toAbsolutePath().toString();
         jsonUtil.writeJson(json, dest);
     }

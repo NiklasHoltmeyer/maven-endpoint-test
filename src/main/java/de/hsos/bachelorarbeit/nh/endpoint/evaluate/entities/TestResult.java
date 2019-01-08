@@ -16,7 +16,7 @@ public class TestResult extends Endpoint{
     Unit<Double> averageSize;
     Unit<Double> throughPut;
 
-    List<EndpointExecutionInfo> endpointExecutionInfos;
+    EndpointExecutionInfo endpointExecutionInfosAverage;
 
 
     public TestResult(String path, String method, List<TestRequestResult> testRequestResults) {
@@ -76,6 +76,19 @@ public class TestResult extends Endpoint{
         return this.testRequestResults.stream().filter(tr -> !tr.isSuccess()).findFirst().orElse(null) != null;
     }
 
+    /**
+     *
+     * @param url /bla/1
+     * @param method
+     * @return
+     */
+    public boolean compareServletURL(String url, String method){
+        return this.testRequestResults.stream()
+                .filter(tr->tr.compareServletURL(url, method))
+                .findFirst()
+                .orElse(null) != null;
+    }
+
     private void calculateThroughPut(){
         double totalTime = this.testRequestResults.stream().mapToDouble(TestRequestResult::getElapsedTime).sum();
         double totalRequests = this.testRequestResults.stream().mapToDouble(TestRequestResult::getRequestCount).sum();
@@ -107,12 +120,12 @@ public class TestResult extends Endpoint{
         return averageSize;
     }
 
-    public List<EndpointExecutionInfo> getEndpointExecutionInfos() {
-        return endpointExecutionInfos;
+    public EndpointExecutionInfo getEndpointExecutionInfosAverage() {
+        return endpointExecutionInfosAverage;
     }
 
-    public void setEndpointExecutionInfos(List<EndpointExecutionInfo> endpointExecutionInfos) {
-        this.endpointExecutionInfos = endpointExecutionInfos;
+    public void setEndpointExecutionInfosAverage(EndpointExecutionInfo endpointExecutionInfosAverage) {
+        this.endpointExecutionInfosAverage = endpointExecutionInfosAverage;
     }
 
     @Override

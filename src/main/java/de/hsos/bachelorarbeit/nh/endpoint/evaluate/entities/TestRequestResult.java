@@ -68,6 +68,10 @@ public class TestRequestResult extends Endpoint{
         this.size = size;
     }
 
+    public boolean compareServletURL(String url, String method){
+        return this.getMethod().equals(method) && this.getPath().equals(url);
+    }
+
     @Override
     public String toString() {
         return "\tTestRequestResult{" + "\n" +

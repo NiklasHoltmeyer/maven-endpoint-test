@@ -5,8 +5,6 @@ import java.util.Optional;
 
 public class TestResultGroup {
     List<TestResult> resultGroups;
-    String method;
-    String path;
 
     public List<TestResult> getResultGroups() {
         return resultGroups;
@@ -20,30 +18,34 @@ public class TestResultGroup {
         this.resultGroups.add(result);
     }
 
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
 
     public boolean didFail(){
         return resultGroups.stream().filter(TestResult::isFailed).findFirst().orElse(null) != null;
     }
 
+    /**
+     *
+     * @param path (/bla/{id})
+     * @param method
+     * @return
+     */
     public Optional<TestResult> getTestResult(String path, String method){
         return this.resultGroups.stream()
                 .filter(x-> x.compare(path, method))
                 .findFirst();
     }
+
+    /**
+     *
+     * @param path (/bla/1)
+     * @param method
+     * @return
+     */
+    public Optional<TestResult> getTestResultServletURL(String path, String method){
+        return this.resultGroups.stream()
+                .filter(x->x.compareServletURL(path, method))
+                .findFirst();
+    }
+
 
 }

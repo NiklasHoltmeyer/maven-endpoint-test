@@ -8,18 +8,27 @@ import java.util.List;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class EndpointGroupInfo extends Endpoint {
-    List<EndpointExecutionInfo> endpointExecutionInfos;
+    EndpointExecutionInfo endpointExecutionInfoAveraged;
 
-    public EndpointGroupInfo(String url, String method, List<EndpointExecutionInfo> endpointExecutionInfos) {
+    public EndpointGroupInfo(String url, String method, EndpointExecutionInfo endpointExecutionInfos) {
         super(url, method);
-        this.endpointExecutionInfos = endpointExecutionInfos;
+        this.endpointExecutionInfoAveraged = endpointExecutionInfos;
     }
 
-    public List<EndpointExecutionInfo> getEndpointExecutionInfos() {
-        return endpointExecutionInfos;
+    public EndpointExecutionInfo getEndpointExecutionInfoAveraged() {
+        return endpointExecutionInfoAveraged;
     }
 
-    public void setEndpointExecutionInfos(List<EndpointExecutionInfo> endpointExecutionInfos) {
-        this.endpointExecutionInfos = endpointExecutionInfos;
+    public void setEndpointExecutionInfoAveraged(EndpointExecutionInfo endpointExecutionInfoAveraged) {
+        this.endpointExecutionInfoAveraged = endpointExecutionInfoAveraged;
+    }
+
+    @Override
+    public String toString() {
+        return "EndpointGroupInfo{" +
+                "\tendpointExecutionInfoAveraged=" + endpointExecutionInfoAveraged +
+                "\t, path='" + path + '\'' +
+                "\t, method='" + method + '\'' +
+                '}';
     }
 }

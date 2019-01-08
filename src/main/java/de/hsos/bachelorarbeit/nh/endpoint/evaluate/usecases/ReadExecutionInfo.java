@@ -1,5 +1,7 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndpointGroupInfo;
 import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
 
@@ -8,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ReadExecutionInfo {
@@ -21,7 +22,7 @@ public class ReadExecutionInfo {
         this.jsonUtil = jsonUtil;
     }
 
-    public List<EndpointGroupInfo> getEndPointGroupInfo() {
+    public List<EndpointGroupInfo> getEndPointGroupInfo() throws IOException {
         /*JsonReader reader = null;
         try {
             reader = new JsonReader(new FileReader(ENDPOINTREPORTABSOLOUTEPATH));
@@ -30,15 +31,17 @@ public class ReadExecutionInfo {
         if(reader==null) return new ArrayList<>();
 
         Gson gson = new Gson();
-        EndpointGroupInfo[] egis = new Gson().fromJson(reader, EndpointGroupInfo[].class);
+        EndpointGroupInfo[] egis = new Gson().fromJsonFile(reader, EndpointGroupInfo[].class);
 */
-        EndpointGroupInfo[] egis = new EndpointGroupInfo[0];
-        try {
-            egis = this.jsonUtil.readJsonFromFile(ENDPOINTREPORTABSOLOUTEPATH, EndpointGroupInfo[].class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+        //EndpointGroupInfo jr = jsonUtil.fromJsonFile(ENDPOINTREPORTABSOLOUTEPATH, EndpointGroupInfo.class);
+        JsonArray jr = jsonUtil.fromJsonFile(ENDPOINTREPORTABSOLOUTEPATH, JsonArray.class);
+        List<EndpointGroupInfo> endpointGroupInfos = new ArrayList<>();
+        for (int i = 0; i < jr.size(); ++i) {
+            JsonElement jE = jr.get(i);
+            EndpointGroupInfo endpointGroupInfo = jsonUtil.fromJson(jE, EndpointGroupInfo.class);
+            endpointGroupInfos.add(endpointGroupInfo);
         }
-        return Arrays.asList(egis);
+        return endpointGroupInfos;
     }
 }
+

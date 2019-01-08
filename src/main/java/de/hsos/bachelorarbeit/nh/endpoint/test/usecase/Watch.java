@@ -2,7 +2,6 @@ package de.hsos.bachelorarbeit.nh.endpoint.test.usecase;
 
 import com.google.gson.JsonObject;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResultGroup;
-import de.hsos.bachelorarbeit.nh.endpoint.util.frameworks.GsonJsonUtil;
 import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
 
 import java.io.IOException;
@@ -25,7 +24,7 @@ public class Watch {
 
     public boolean start() {
         try {
-            return jsonUtil.getJson(pathStart, JsonObject.class).isJsonNull();
+            return jsonUtil.fromJsonURL(pathStart, JsonObject.class).isJsonNull();
         } catch (IOException e) {
             return false;
         }
@@ -33,7 +32,7 @@ public class Watch {
 
     public WatchResultGroup stop() {
         try {
-            return jsonUtil.getJson(pathStop, WatchResultGroup.class);
+            return jsonUtil.fromJsonURL(pathStop, WatchResultGroup.class);
         } catch (IOException e) {
             return null;
         }

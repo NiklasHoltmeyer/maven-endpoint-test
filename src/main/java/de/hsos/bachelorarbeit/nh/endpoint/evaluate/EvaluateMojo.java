@@ -41,7 +41,14 @@ public class EvaluateMojo  extends AbstractMojo{
             throw new MojoFailureException(e.toString());
         }
 
-        CombineResults cR = new CombineResults(readTestsResults, readExecutionInfo);
+        CombineResults cR = null;
+        try {
+            cR = new CombineResults(readTestsResults, readExecutionInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MojoFailureException(e.toString());
+
+        }
         TestResultGroup result = cR.getTestResultGroup();
 
         //EvaluateTestResults evaluateTestResults = new EvaluateTestResults(readTestsResults, readExecutionInfo);
@@ -52,6 +59,7 @@ public class EvaluateMojo  extends AbstractMojo{
         try {
             jsonUtil.writeJson(result, "c:/Users/nikla/Desktop/hitler.json");
         } catch (IOException e) {
+            e.printStackTrace();
             throw new MojoFailureException(e.toString());
         }
     }

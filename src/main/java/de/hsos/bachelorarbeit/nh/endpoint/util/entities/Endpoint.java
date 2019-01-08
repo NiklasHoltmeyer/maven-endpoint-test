@@ -2,12 +2,14 @@ package de.hsos.bachelorarbeit.nh.endpoint.util.entities;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.gson.annotations.SerializedName;
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.Request;
 
 import java.util.Objects;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Endpoint {
+    @SerializedName(value="path", alternate = {"url"})
     protected String path;
     protected String method;
 

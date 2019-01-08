@@ -62,6 +62,26 @@ public class EndpointExecutionInfo extends Endpoint {
         this.responseSize = responseSize;
     }
 
+    public String getUrl() {
+        return path;
+    }
+
+    public void setUrl(String url) {
+        this.path = url;
+    }
+
+    @Override
+    public String toString() {
+        return "EndpointExecutionInfo{" +
+                "\texecutionTime=" + executionTime +
+                "\t, cpuUsage=" + cpuUsage +
+                "\t, cpuUsageSystem=" + cpuUsageSystem +
+                "\t, memoryUsage=" + memoryUsage +
+                "\t, responseSize=" + responseSize +
+                "\t, path='" + path + '\'' +
+                "\t, method='" + method + '\'' +
+                '}';
+    }
 }
 
 

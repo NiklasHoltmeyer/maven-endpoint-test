@@ -2,6 +2,7 @@ package de.hsos.bachelorarbeit.nh.endpoint.util.frameworks;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndpointGroupInfo;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResultGroup;
@@ -18,7 +19,7 @@ public class GsonJsonUtil implements JsonUtil {
     }
     @Override
     public void writeJson(Object object, String path, boolean overWrite) throws IOException{
-        try (Writer writer = new FileWriter(path, overWrite)) {
+        try (Writer writer = new FileWriter(path, !overWrite)) {
             Gson gson = this.getGson();
             gson.toJson(object, writer);
         } catch (IOException e) {
@@ -27,7 +28,7 @@ public class GsonJsonUtil implements JsonUtil {
     }
 
     @Override
-    public <T> T readJsonFromFile(String path, Class<T> clazz) throws IOException{
+    public <T> T fromJsonFile(String path, Class<T> clazz) throws IOException{
         JsonReader reader = new JsonReader(new FileReader(path));
         if(reader==null) throw new IOException("Reader-NP");
 
@@ -36,10 +37,15 @@ public class GsonJsonUtil implements JsonUtil {
     }
 
     @Override
-    public <T> T getJson(String url, Class<T> clazz) throws IOException{
+    public <T> T fromJsonURL(String url, Class<T> clazz) throws IOException{
         InputStreamReader inputStreamReader = this.getInputStream(url);
         Gson gson = this.getGson();
         return gson.fromJson(inputStreamReader, clazz);
+    }
+
+    @Override
+    public <T> T fromJson(JsonElement jsonElement, Class<T> clazz){
+        return this.getGson().fromJson(jsonElement, clazz);
     }
 
     private Gson getGson(){
