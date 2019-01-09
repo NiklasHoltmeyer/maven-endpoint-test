@@ -1,5 +1,6 @@
 package de.hsos.bachelorarbeit.nh.endpoint.test.usecase;
 
+import de.hsos.bachelorarbeit.nh.endpoint.test.entities.DebugInfos;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.TestRunnerResult;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResult;
 
@@ -16,10 +17,17 @@ import java.util.stream.Collectors;
 public abstract class TestRunner {
     protected String testPath;
     HealthCheck healthCheck;
+    protected DebugInfos debugInfos;
 
     public TestRunner(String testPath, HealthCheck healthCheck) {
         this.testPath = testPath;
         this.healthCheck=healthCheck;
+    }
+
+    public TestRunner(String testPath,HealthCheck healthCheck,  DebugInfos debugInfos) {
+        this.testPath = testPath;
+        this.debugInfos = debugInfos;
+        this.healthCheck = healthCheck;
     }
 
     public TestRunnerResult runTests(){

@@ -2,7 +2,7 @@ package de.hsos.bachelorarbeit.nh.endpoint.evaluate;
 
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.jmeter.JMeterReadTestResults;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.jmeter.PublishResultsHttpClient;
+import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.PublishTestResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.*;
 import de.hsos.bachelorarbeit.nh.endpoint.util.frameworks.GsonJsonUtil;
 import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
@@ -31,7 +31,7 @@ public class EvaluateMojo  extends AbstractMojo{
         ReadTestsResults readTestsResults;
         ReadWatchResults readWatchResults;
         JsonUtil jsonUtil = new GsonJsonUtil();
-        PublishResults publishResults = new PublishResultsHttpClient(historyServer);
+        PublishResults publishResults = new PublishTestResultGroup(historyServer,jsonUtil);
         try{
             readWatchResults = new ReadWatchResults(jsonUtil, reportPath);
         }catch (FileNotFoundException e) {

@@ -2,6 +2,7 @@ package de.hsos.bachelorarbeit.nh.endpoint.test.frameworks.jmeter;
 
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndPointExecutionInfo.EndpointExecutionInfo;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.CapacityResult;
+import de.hsos.bachelorarbeit.nh.endpoint.test.entities.DebugInfos;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.TestRunnerResult;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.WatchResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.HealthCheck;
@@ -29,8 +30,8 @@ public class JMeterTestRunner extends TestRunner {
     Watch watch;
     Log log;
 
-    public JMeterTestRunner(Log log, String jMeterFullPath, String jMeterCMDPluginFullPath, String testPath, HealthCheck healthCheck, Watch watch) {
-        super(testPath, healthCheck);
+    public JMeterTestRunner(Log log, String jMeterFullPath, String jMeterCMDPluginFullPath, String testPath, HealthCheck healthCheck, Watch watch, DebugInfos debugInfos) {
+        super(testPath, healthCheck, debugInfos);
         testPaths = new ArrayList<>();
         this.jMeterFullPath = jMeterFullPath;
         this.jMeterCMDPluginFullPath=jMeterCMDPluginFullPath;
@@ -45,47 +46,60 @@ public class JMeterTestRunner extends TestRunner {
 
         log.info("Start-Test(s)");
         System.out.println("Start-Test(s)");
-        TestRunnerResult validationTests = testPaths.stream()
-                .filter(x->x.getFileName().toString().toLowerCase(Locale.GERMAN).endsWith("all-endpoints.jmx"))
-                .map(this::startTest)
-                .filter(t->!t.isSuccess())
-                .findFirst()
-                .orElse(null);
+        if(!debugInfos.isSkipValidationTests()){
+            TestRunnerResult validationTests = testPaths.stream()
+                    .filter(x->x.getFileName().toString().toLowerCase(Locale.GERMAN).endsWith("all-endpoints.jmx"))
+                    .map(this::startTest)
+                    .filter(t->!t.isSuccess())
+                    .findFirst()
+                    .orElse(null);
 
-        boolean success = validationTests == null;
-        tr.setSuccess(success);
+            boolean success = validationTests == null;
+            tr.setSuccess(success);
 
-        if(!success){
-            tr.setErrorMessage(validationTests.getErrorMessage());
+            if(!success){
+                tr.setErrorMessage(validationTests.getErrorMessage());
+            }
+        }else{
+            System.out.println("Validation-Test-Skipped");
         }
 
-        Path capacityResultPath = Paths.get(testPath, "reports", "capacityTests", "capacity.ssv");
-        List<CapacityResult> cList = getReportFiles("capacitytests").stream()
-                .map(x->this.performCapacityTest(x))
-                .collect(Collectors.toList());
-        try {
-            this.saveCapactiyTest(cList, capacityResultPath);
-        } catch (IOException e) {
-            log.error("Jmeter@performTests");
-            log.error(e.toString());
-            e.printStackTrace();
-        }
+        if(!debugInfos.isSkipCapacityTests()){
+            Path capacityResultPath = Paths.get(testPath, "reports", "capacityTests", "capacity.ssv");
+            List<CapacityResult> cList = getReportFiles("capacitytests").stream()
+                    .map(x->this.performCapacityTest(x))
+                    .collect(Collectors.toList());
+            try {
+                this.saveCapactiyTest(cList, capacityResultPath);
+            } catch (IOException e) {
+                log.error("Jmeter@performTests");
+                log.error(e.toString());
+                e.printStackTrace();
+            }
+        }else{
+            System.out.println("Capacity-Test-Skipped");
 
-        List<WatchResultGroup> wList = getReportFiles("watchtests")
-                .stream()
-                .map(x->this.performWatchTests(x))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        Path watchResultPath = Paths.get(testPath, "reports", "watchTests", "watch.ssv");
-        try {
-            this.saveWatchResult(wList, watchResultPath);
-        } catch (IOException e) {
-            log.error("Jmeter@performTests");
-            log.error(e.toString());
-            e.printStackTrace();
         }
-        log.info("Tests finished!");
+        if(!debugInfos.isSkipWatchtests()){
+            List<WatchResultGroup> wList = getReportFiles("watchtests")
+                    .stream()
+                    .map(this::performWatchTests)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            Path watchResultPath = Paths.get(testPath, "reports", "watchTests", "watch.ssv");
+            System.out.println("Path: " + watchResultPath);
+            try {
+                this.saveWatchResult(wList, watchResultPath);
+            } catch (IOException e) {
+                log.error("Jmeter@performTests");
+                log.error(e.toString());
+                e.printStackTrace();
+            }
+        }else{
+            System.out.println("Watch-Test-Skipped");
+        }
+        log.info("Testsfinished!");
         return tr;
     }
 
@@ -102,24 +116,33 @@ public class JMeterTestRunner extends TestRunner {
 
         Pair<String, String> pair = new Pair<String, String>("threadCount", "10");
         List<Pair<String, String>> pairList =  Arrays.asList(pair);
-        this.watch.start();
+
+        try{
+            this.watch.start();
+        }catch(Exception e){
+            System.err.println(e.toString());
+            System.err.println("performWatchTests@Watch-Start failed");
+            return null;
+        }
+
         TestRunnerResult tr = runTest(_reportPath, _jmxPath, _resultPath, pairList, true);
-        WatchResultGroup wrg = null;
-        try {
+
+        WatchResultGroup wrg;
+        try{
             wrg = this.watch.stop();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
+        }catch(Exception e){
+            System.err.println(e.toString());
+            System.err.println("performWatchTests@Watch-Start failed");
+            return null;
         }
         if(wrg!=null){
             wrg.setMethod(method);
             wrg.setPath(path);
+            return wrg;
         }else{
-            System.out.println("performWatchTests@NP");
-            return null;
+            System.err.println("performWatchTests@WRG@NP");
         }
-
-        return wrg;
+        return null;
     }
 
     List<Path> getReportFiles(String name){
@@ -132,6 +155,7 @@ public class JMeterTestRunner extends TestRunner {
     @SuppressWarnings("Duplicates")
     private void saveWatchResult(List<WatchResultGroup> watchResults, Path resultPath) throws IOException {
         Map<Pair<String,String>, List<WatchResultGroup>> pairListMap = watchResults.stream().collect(Collectors.groupingBy(p->new Pair<String, String>(p.getPath(), p.getMethod())));
+
         File file = new File(resultPath.getParent().toAbsolutePath().toString());
         file.mkdirs();
         file.createNewFile();
@@ -143,9 +167,11 @@ public class JMeterTestRunner extends TestRunner {
                 List<WatchResultGroup> results = pairListMap.get(endpoint);
                 String path = endpoint.getKey();
                 String method = endpoint.getValue();
-                String values = getWRGSSV(results);
+                String values = getWRGSSV(results);;
                 if(!values.equals("")){
                     bW.write(path + " " + method + " " + values);
+                }else{
+                    System.out.println("WRGSSV => values.equals(\"\")");
                 }
             }
             bW.close();
@@ -155,16 +181,25 @@ public class JMeterTestRunner extends TestRunner {
     private String getWRGSSV(List<WatchResultGroup> watchResultGroups){
         //
         StringBuilder sb = new StringBuilder();
-        String units[] = null;
-        if(!watchResultGroups.isEmpty()){
-            WatchResultGroup wrg = watchResultGroups.get(0);
-            units = new String[]{wrg.getCpu().getAverage().getUnit(), wrg.getMemory().getAverage().getUnit()};
+
+        if(watchResultGroups.isEmpty()){
+            System.out.println("WRG - isEmpty!!!");
+            return sb.toString();
         }
-        if(units != null && units.length > 1){
+
+        String units[] = new String[]{watchResultGroups.get(0).getCpu().getAverage().getUnit(),
+                watchResultGroups.get(0).getMemory().getAverage().getUnit()};
+
+        System.out.println("U1: " + units[0] + " U2: " + units[1]);
+
+        if(units != null){
             Double cpuAVG = watchResultGroups.stream().mapToDouble(wr->wr.getCpu().getAverage().getValue()).average().orElse(Double.NaN);
             Double memoryAVG = watchResultGroups.stream().mapToDouble(wr->wr.getMemory().getAverage().getValue()).average().orElse(Double.NaN);
             sb.append(cpuAVG).append(" ").append(units[0]).append(" ").append(memoryAVG).append(" ").append(units[1]);
+        }else{
+            System.out.println("Units ==null");
         }
+
         return sb.toString();
     }
 
@@ -197,8 +232,8 @@ public class JMeterTestRunner extends TestRunner {
         String path = getPath(_jmxPath).orElse(null);
         String method = getMethod(_jmxPath).orElse(null);
         System.out.println("PerformanceCapacityTest: " + path + "@" + method);
-        int maxCapacity = performMaxCapacityTest(_jmxPath, _reportPath, _resultPath, 0, 20);
-        //int maxCapacity = 1;
+        //int maxCapacity = performMaxCapacityTest(_jmxPath, _reportPath, _resultPath, 0, 20);
+        int maxCapacity = 1;
         CapacityResult result = new CapacityResult(path, method, maxCapacity);
         return result;
     }

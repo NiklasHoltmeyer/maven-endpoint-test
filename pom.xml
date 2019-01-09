@@ -6,10 +6,10 @@
     <groupId>com.github.NiklasHoltmeyer</groupId>
     <artifactId>maven-endpoint-test</artifactId>
 -->
-    <groupId>com.github.NiklasHoltmeyer</groupId>
+    <groupId>local.com.github.NiklasHoltmeyer</groupId>
     <artifactId>maven-endpoint-test</artifactId>
 
-    <version>3.2.3formular1</version>
+    <version>3.2.3formular2</version>
     <packaging>maven-plugin</packaging>
 
     <name>maven-jmeter-test Maven Plugin</name>
