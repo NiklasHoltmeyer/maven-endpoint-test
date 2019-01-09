@@ -190,8 +190,6 @@ public class JMeterTestRunner extends TestRunner {
         String units[] = new String[]{watchResultGroups.get(0).getCpu().getAverage().getUnit(),
                 watchResultGroups.get(0).getMemory().getAverage().getUnit()};
 
-        System.out.println("U1: " + units[0] + " U2: " + units[1]);
-
         if(units != null){
             Double cpuAVG = watchResultGroups.stream().mapToDouble(wr->wr.getCpu().getAverage().getValue()).average().orElse(Double.NaN);
             Double memoryAVG = watchResultGroups.stream().mapToDouble(wr->wr.getMemory().getAverage().getValue()).average().orElse(Double.NaN);
@@ -232,8 +230,8 @@ public class JMeterTestRunner extends TestRunner {
         String path = getPath(_jmxPath).orElse(null);
         String method = getMethod(_jmxPath).orElse(null);
         System.out.println("PerformanceCapacityTest: " + path + "@" + method);
-        //int maxCapacity = performMaxCapacityTest(_jmxPath, _reportPath, _resultPath, 0, 20);
-        int maxCapacity = 1;
+        int maxCapacity = performMaxCapacityTest(_jmxPath, _reportPath, _resultPath, 0, 20);
+        //int maxCapacity = 1;
         CapacityResult result = new CapacityResult(path, method, maxCapacity);
         return result;
     }
