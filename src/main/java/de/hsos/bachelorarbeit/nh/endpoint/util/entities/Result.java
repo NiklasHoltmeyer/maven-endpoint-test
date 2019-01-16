@@ -9,6 +9,11 @@ public class Result {
         this.errorMessage = errorMessage;
     }
 
+    public Result(Result result){
+        this.success = result.isSuccess();
+        this.errorMessage = result.getErrorMessage();
+    }
+
     public Result() {}
 
     public boolean isSuccess() {
@@ -27,3 +32,4 @@ public class Result {
         this.errorMessage = errorMessage;
     }
 }
+

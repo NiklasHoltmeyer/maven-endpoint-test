@@ -1,30 +1,29 @@
-package de.hsos.bachelorarbeit.nh.endpoint.test.usecase;
+package de.hsos.bachelorarbeit.nh.endpoint.test.usecase.TestRunner;
 
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.DebugInfos;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.TestRunnerResult;
-import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResult;
+import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.HealthCheck;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public abstract class TestRunner {
+public abstract class EndpointTestRunner extends TestRunner{
     protected String testPath;
     HealthCheck healthCheck;
     protected DebugInfos debugInfos;
 
-    public TestRunner(String testPath, HealthCheck healthCheck) {
+    public EndpointTestRunner(String testPath, HealthCheck healthCheck) {
         this.testPath = testPath;
         this.healthCheck=healthCheck;
     }
 
-    public TestRunner(String testPath,HealthCheck healthCheck,  DebugInfos debugInfos) {
+    public EndpointTestRunner(String testPath, HealthCheck healthCheck, DebugInfos debugInfos) {
         this.testPath = testPath;
         this.debugInfos = debugInfos;
         this.healthCheck = healthCheck;
@@ -71,32 +70,6 @@ public abstract class TestRunner {
         return Files.walk(Paths.get(path))
                 .filter(filter)
                 .collect(Collectors.toList());
-    }
-
-    protected TestRunnerResult runProcess(String cmd, boolean waitFor){
-        List<String> cmdList = (Arrays.asList(cmd.split(" ")));
-        ProcessBuilder pB = new ProcessBuilder(cmdList);
-        TestRunnerResult tR = new TestRunnerResult();
-
-        Process p = null;
-        try {
-            p = pB.start();
-        } catch (IOException e) {
-            tR.setErrorMessage(e.toString());
-            return tR;
-        }
-
-        if(waitFor){
-            try {
-                int returnValue = p.waitFor();
-                if(returnValue != 0) tR.setErrorMessage("Invalid-Return-Value(TestRunner@runProcess): " + returnValue);
-            } catch (InterruptedException e) {
-                tR.setErrorMessage(e.toString());
-                return tR;
-            }
-        }
-
-        return tR;
     }
 
     private boolean doesPathExist(String path){

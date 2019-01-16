@@ -1,10 +1,18 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities;
 
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Test.UnitTest.UnitTestGroupedResult;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.coverage.CoverageResultAggregated;
+
 import java.util.List;
 import java.util.Optional;
 
 public class TestResultGroup {
     List<TestResult> resultGroups;
+
+    UnitTestGroupedResult unitTestResults;
+
+    CoverageResultAggregated aggregatedEndpointCoverage;
+
 
     public List<TestResult> getResultGroups() {
         return resultGroups;
@@ -18,6 +26,21 @@ public class TestResultGroup {
         this.resultGroups.add(result);
     }
 
+    public CoverageResultAggregated getAggregatedEndpointCoverage() {
+        return aggregatedEndpointCoverage;
+    }
+
+    public void setAggregatedEndpointCoverage(CoverageResultAggregated aggregatedEndpointCoverage) {
+        this.aggregatedEndpointCoverage = aggregatedEndpointCoverage;
+    }
+
+    public UnitTestGroupedResult getUnitTestResults() {
+        return unitTestResults;
+    }
+
+    public void setUnitTestResults(UnitTestGroupedResult unitTestResults) {
+        this.unitTestResults = unitTestResults;
+    }
 
     public boolean didFail(){
         return resultGroups.stream().filter(TestResult::isFailed).findFirst().orElse(null) != null;

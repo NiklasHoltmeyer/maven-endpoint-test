@@ -1,6 +1,6 @@
 package de.hsos.bachelorarbeit.nh.endpoint.coverage.usecases.generateCoverage;
 
-import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.CoverageResult;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.coverage.CoverageResult;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.Request;
 import org.apache.maven.plugin.logging.Log;

@@ -20,6 +20,8 @@ public class TestResult extends Endpoint{
 
     EndpointExecutionInfo endpointExecutionInfosAverage;
 
+    int testCount = 0;
+
     public TestResult(String path, String method, List<TestRequestResult> testRequestResults) {
         super(path, method);
         this.testRequestResults = testRequestResults;
@@ -71,6 +73,13 @@ public class TestResult extends Endpoint{
         this.averageElapsedTime = averageElapsedTime;
     }
 
+    public int getTestCount() {
+        return testCount;
+    }
+
+    public void setTestCount(int testCount) {
+        this.testCount = testCount;
+    }
 
     public boolean isFailed(){
         return this.testRequestResults.stream().filter(tr -> !tr.isSuccess()).findFirst().orElse(null) != null;

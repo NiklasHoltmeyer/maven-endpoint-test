@@ -4,9 +4,9 @@ import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndPoi
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.CapacityResult;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.DebugInfos;
 import de.hsos.bachelorarbeit.nh.endpoint.test.entities.TestRunnerResult;
+import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.TestRunner.EndpointTestRunner;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.WatchResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.HealthCheck;
-import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.TestRunner;
 import de.hsos.bachelorarbeit.nh.endpoint.test.usecase.Watch;
 import de.hsos.bachelorarbeit.nh.endpoint.util.frameworks.GsonJsonUtil;
 import de.hsos.bachelorarbeit.nh.endpoint.util.usecases.JsonUtil;
@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class JMeterTestRunner extends TestRunner {
+public class JMeterTestRunner extends EndpointTestRunner {
     List<Path> testPaths;
     String jMeterFullPath;
     String jMeterCMDPluginFullPath;

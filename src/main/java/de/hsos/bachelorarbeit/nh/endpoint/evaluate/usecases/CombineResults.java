@@ -4,7 +4,10 @@ import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.Endpoi
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestRequestResult;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResult;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResultGroup;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.WatchResultGroup;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.coverage.CoverageEndpointResult;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.coverage.CoverageResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +113,20 @@ public class CombineResults {
 
     public TestResultGroup getTestResultGroup() {
         return testResultGroup;
+    }
+
+    public void addEndpointCoverageResults(CoverageResult coverageResult) {
+        coverageResult.getEndpointCoverages().forEach(this::addEndpointCoverage);
+    }
+
+    private void addEndpointCoverage(CoverageEndpointResult coverageEndpointResult) {
+        Endpoint p = coverageEndpointResult.getEndpoint();
+        TestResult tr = testResultGroup.getTestResult(p.getPath(), p.getMethod()).orElse(null);
+        if(tr==null){
+            tr = new TestResult(p.getPath(), p.getMethod(), new ArrayList<>());
+            this.testResultGroup.addResultGroup(tr);
+        }
+        tr.setTestCount(coverageEndpointResult.getCounter());
     }
 }
 
