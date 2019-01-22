@@ -86,6 +86,10 @@ public class UnitTestGroupedResult {
         if(clazz!=null) this.summedCodeCoverage.setClazz(clazz);
     }
 
+    public void setResults(List<UnitTestResult> results) {
+        this.results = results;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(results, summedResult, summedCodeCoverage);

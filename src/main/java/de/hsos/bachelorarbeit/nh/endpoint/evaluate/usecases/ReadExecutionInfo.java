@@ -17,23 +17,12 @@ public class ReadExecutionInfo {
     protected static String ENDPOINTREPORTABSOLOUTEPATH;
     private JsonUtil jsonUtil;
     public ReadExecutionInfo(String reportPath, JsonUtil jsonUtil) throws FileNotFoundException {
-        ENDPOINTREPORTABSOLOUTEPATH = Paths.get(reportPath, ENDPOINTREPORTRELATIVEPATH).toAbsolutePath().toString();
+        ENDPOINTREPORTABSOLOUTEPATH = Paths.get(reportPath, "executioninfo",ENDPOINTREPORTRELATIVEPATH).toAbsolutePath().toString();
         if(!new File(ENDPOINTREPORTABSOLOUTEPATH).exists()) throw new FileNotFoundException("Report-Missing: " + ENDPOINTREPORTABSOLOUTEPATH);
         this.jsonUtil = jsonUtil;
     }
 
     public List<EndpointGroupInfo> getEndPointGroupInfo() throws IOException {
-        /*JsonReader reader = null;
-        try {
-            reader = new JsonReader(new FileReader(ENDPOINTREPORTABSOLOUTEPATH));
-        } catch (FileNotFoundException e) {}
-
-        if(reader==null) return new ArrayList<>();
-
-        Gson gson = new Gson();
-        EndpointGroupInfo[] egis = new Gson().fromJsonFile(reader, EndpointGroupInfo[].class);
-*/
-        //EndpointGroupInfo jr = jsonUtil.fromJsonFile(ENDPOINTREPORTABSOLOUTEPATH, EndpointGroupInfo.class);
         JsonArray jr = jsonUtil.fromJsonFile(ENDPOINTREPORTABSOLOUTEPATH, JsonArray.class);
         List<EndpointGroupInfo> endpointGroupInfos = new ArrayList<>();
         for (int i = 0; i < jr.size(); ++i) {

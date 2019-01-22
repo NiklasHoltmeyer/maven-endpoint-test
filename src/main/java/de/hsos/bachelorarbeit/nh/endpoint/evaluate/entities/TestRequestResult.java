@@ -4,13 +4,14 @@ import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Endpoint;
 
 public class TestRequestResult extends Endpoint{
     /**
-     * Time between sending
+     * Time between sending the request & first response
      */
     Double latency;
     /**
      * Time between sending the request & last response
      */
-    Double elapsedTime;
+    Double turnAroundTime;
+    //elapsedTime
     String urlParameterLess;
     Integer requestCount;
     boolean success;
@@ -36,12 +37,12 @@ public class TestRequestResult extends Endpoint{
         this.urlParameterLess = urlParameterLess;
     }
 
-    public Double getElapsedTime() {
-        return elapsedTime;
+    public Double getTurnAroundTime() {
+        return turnAroundTime;
     }
 
-    public void setElapsedTime(Double elapsedTime) {
-        this.elapsedTime = elapsedTime;
+    public void setTurnAroundTime(Double turnAroundTime) {
+        this.turnAroundTime = turnAroundTime;
     }
 
     public Integer getRequestCount() {
@@ -77,7 +78,7 @@ public class TestRequestResult extends Endpoint{
     public String toString() {
         return "\tTestRequestResult{" + "\n" +
                 "\t\tlatency=" + latency + "\n" +
-                "\t\t, elapsedTime=" + elapsedTime + "\n" +
+                "\t\t, turnAroundTime=" + turnAroundTime + "\n" +
                 "\t\t, urlParameterLess='" + urlParameterLess + '\'' + "\n" +
                 "\t\t, path='" + this.getPath() + '\'' + "\n" +
                 "\t\t, method='" + this.getMethod() + '\'' + "\n" +

@@ -62,6 +62,9 @@ public class TestMojo extends AbstractMojo{
     @Parameter(readonly =  true)
     boolean skipWatchtests = false;
 
+    @Parameter(readonly =  true)
+    boolean skipUnitTests = false;
+
     @Override
     public void execute() throws MojoFailureException {
         Log log = getLog();
@@ -81,8 +84,12 @@ public class TestMojo extends AbstractMojo{
     }
 
     private void runTests(String baseDir, JsonUtil jsonUtil, Log log) throws Exception{
-        log.info("Run Unit-/Coverage Tests");
-        this.runUnitTests(baseDir, jsonUtil);
+        if(!skipUnitTests){
+            log.info("Run Unit-/Coverage Tests");
+            this.runUnitTests(baseDir, jsonUtil);
+        }else{
+            log.info("Unit-Tests skipped!");
+        }
         log.info("Run Endpoint-Tests");
         this.runEndpointTests(log, jsonUtil);
     }

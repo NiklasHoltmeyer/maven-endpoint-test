@@ -1,7 +1,7 @@
 package de.hsos.bachelorarbeit.nh.endpoint.util.entities;
 
 public class Result {
-    private boolean success = true;
+    private Boolean success = true;
     private String errorMessage;
 
     public Result(boolean success, String errorMessage) {
@@ -20,7 +20,7 @@ public class Result {
         return success;
     }
 
-    public void setSuccess(boolean success) {
+    public void setSuccess(Boolean success) {
         this.success = success;
     }
 

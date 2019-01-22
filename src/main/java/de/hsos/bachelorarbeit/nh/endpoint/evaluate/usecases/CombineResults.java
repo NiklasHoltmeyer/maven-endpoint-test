@@ -1,5 +1,6 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases;
 
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndPointExecutionInfo.EndpointExecutionInfo;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.ExecutionInfo.EndpointGroupInfo;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestRequestResult;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResult;
@@ -74,7 +75,8 @@ public class CombineResults {
     private void addEndpointInfo(EndpointGroupInfo endpointInfo) {
         String url = endpointInfo.getPath();
         String method = endpointInfo.getMethod();
-        String p2 = endpointInfo.getEndpointExecutionInfoAveraged().getPath();
+        EndpointExecutionInfo endpointExecutionInfo = endpointInfo.getEndpointExecutionInfoAveraged();
+        String p2 = endpointExecutionInfo.getPath();
         //System.out.println("endpointInfo: " + endpointInfo);
         //System.out.println("p2: " + p2);
         //System.out.println("url: " + url);
@@ -86,7 +88,9 @@ public class CombineResults {
             tr.setMethod(method);
             this.testResultGroup.addResultGroup(tr);
         }
-        tr.setEndpointExecutionInfosAverage(endpointInfo.getEndpointExecutionInfoAveraged());
+        endpointExecutionInfo.setPath(null);   //path/method => sind in TR
+        endpointExecutionInfo.setMethod(null); //
+        tr.setEndpointExecutionInfosAverage(endpointExecutionInfo);
         //System.out.println("Path: " + tr.getPath());
         //System.out.println("");
     }

@@ -2,10 +2,7 @@ package de.hsos.bachelorarbeit.nh.endpoint.evaluate;
 
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.jmeter.JMeterReadTestResults;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.CombineResults;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadExecutionInfo;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadTestsResults;
-import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.ReadWatchResults;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.*;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Test.UnitTest.UnitTestGroupedResult;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.coverage.CoverageResult;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.coverage.CoverageResultAggregated;
@@ -35,7 +32,18 @@ public class EvaluateMojo  extends AbstractMojo{
         JsonUtil jsonUtil = new GsonJsonUtil();
 
         try{
-            TestResultGroup groupedResults = collectResults(jsonUtil, reportPath);
+            TestResultGroup result = collectResults(jsonUtil, reportPath);
+
+            String reportP =Paths.get(destination, "/reports/").toAbsolutePath().toString();
+            String resultPath = Paths.get(reportP ,"groupedResults.json").toAbsolutePath().toString();
+            String resultAggregatedPath = Paths.get(reportP ,"groupedResults-aggregated.json").toAbsolutePath().toString();
+
+            Evaluate evaluate = new Evaluate();
+            evaluate.evalute(result);
+
+            jsonUtil.writeJson(result, resultPath, true);
+            result.nullRedundant();
+            jsonUtil.writeJson(result, resultAggregatedPath, true);
         }catch(Exception e){
             e.printStackTrace();
             throw new MojoFailureException(e.toString());
@@ -88,9 +96,6 @@ public class EvaluateMojo  extends AbstractMojo{
 
         cR.addEndpointCoverageResults(coverageResult);
 
-        String resultPath = Paths.get(baseP ,"groupedResults.json").toAbsolutePath().toString();
-
-        jsonUtil.writeJson(result, resultPath, true);
         return result;
     }
 }

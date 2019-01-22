@@ -1,7 +1,6 @@
 package de.hsos.bachelorarbeit.nh.endpoint.util.entities;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.annotations.SerializedName;
 import de.hsos.bachelorarbeit.nh.endpoint.coverage.entities.Request;
 
@@ -28,19 +27,15 @@ public class Endpoint {
                 method.equals(this.method);
     }
 
-    @JsonIgnore
     public String getPath() {
         return path;
     }
-    @JsonIgnore
     public void setPath(String path) {
         this.path = path;
     }
-
     public String getMethod() {
         return method;
     }
-
     public void setMethod(String method) {
         this.method = method;
     }

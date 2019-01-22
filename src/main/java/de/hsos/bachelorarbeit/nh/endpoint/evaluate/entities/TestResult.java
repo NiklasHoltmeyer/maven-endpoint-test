@@ -12,15 +12,16 @@ public class TestResult extends Endpoint{
     WatchResultGroup watches;
 
     Double averageLatency;
-    Double averageElapsedTime;
+    Double meanTurnAroundTime;
     Unit<String> maxCapacity;
 
     Unit<Double> averageSize;
     Unit<Double> throughPut;
 
-    EndpointExecutionInfo endpointExecutionInfosAverage;
+    Unit<Long> meanResponseTime;
+    Unit<String> meanResponseSize;
 
-    int testCount = 0;
+    Integer testCount = 0;
 
     public TestResult(String path, String method, List<TestRequestResult> testRequestResults) {
         super(path, method);
@@ -30,23 +31,24 @@ public class TestResult extends Endpoint{
 
     private void init(){
         Double summedLatency = 0.0;
-        Double summedElapsedTime = 0.0;
+        Double summedTurnAroundTime = 0.0;
         long summedSize = 0L;
 
         for(TestRequestResult result : testRequestResults){
             summedLatency += result.getLatency();
-            summedElapsedTime += result.getElapsedTime();
+            summedTurnAroundTime += result.getTurnAroundTime();
             summedSize += result.getSize();
         }
 
         int count = testRequestResults.size();
         if(count > 0){
             averageLatency = summedLatency / count;
-            averageElapsedTime = summedElapsedTime / count;
+            meanTurnAroundTime = summedTurnAroundTime / count;
             averageSize = new Unit<>((double)(summedSize / count), "b");
         }
 
         calculateThroughPut();
+        if(this.throughPut.getValue().isNaN()) this.throughPut.setValue(null);
     }
 
     public List<TestRequestResult> getTestRequestResults() {
@@ -65,19 +67,19 @@ public class TestResult extends Endpoint{
         this.averageLatency = averageLatency;
     }
 
-    public Double getAverageElapsedTime() {
-        return averageElapsedTime;
+    public Double getMeanTurnAroundTime() {
+        return meanTurnAroundTime;
     }
 
-    public void setAverageElapsedTime(Double averageElapsedTime) {
-        this.averageElapsedTime = averageElapsedTime;
+    public void setMeanTurnAroundTime(Double meanTurnAroundTime) {
+        this.meanTurnAroundTime = meanTurnAroundTime;
     }
 
     public int getTestCount() {
         return testCount;
     }
 
-    public void setTestCount(int testCount) {
+    public void setTestCount(Integer testCount) {
         this.testCount = testCount;
     }
 
@@ -99,7 +101,7 @@ public class TestResult extends Endpoint{
     }
 
     private void calculateThroughPut(){
-        double totalTime = this.testRequestResults.stream().mapToDouble(TestRequestResult::getElapsedTime).sum();
+        double totalTime = this.testRequestResults.stream().mapToDouble(TestRequestResult::getTurnAroundTime).sum();
         double totalRequests = this.testRequestResults.stream().mapToDouble(TestRequestResult::getRequestCount).sum();
         double throughPutMS = totalRequests / totalTime;
         this.throughPut = new Unit<>(throughPutMS / 1000, "s");
@@ -129,12 +131,25 @@ public class TestResult extends Endpoint{
         return averageSize;
     }
 
-    public EndpointExecutionInfo getEndpointExecutionInfosAverage() {
-        return endpointExecutionInfosAverage;
+    public Unit<Long> getMeanResponseTime() {
+        return meanResponseTime;
+    }
+
+    public Unit<String> getMeanResponseSize() {
+        return meanResponseSize;
+    }
+
+    public void setMeanResponseTime(Unit<Long> meanResponseTime) {
+        this.meanResponseTime = meanResponseTime;
+    }
+
+    public void setMeanResponseSize(Unit<String> meanResponseSize) {
+        this.meanResponseSize = meanResponseSize;
     }
 
     public void setEndpointExecutionInfosAverage(EndpointExecutionInfo endpointExecutionInfosAverage) {
-        this.endpointExecutionInfosAverage = endpointExecutionInfosAverage;
+        this.meanResponseTime = endpointExecutionInfosAverage.getResponseTime();
+        this.meanResponseSize = endpointExecutionInfosAverage.getResponseSize();
     }
 
     public WatchResultGroup getWatches() {
@@ -145,18 +160,19 @@ public class TestResult extends Endpoint{
         this.watches = watches;
     }
 
-
     @Override
     public String toString() {
         return "TestResult{" +
                 "\ttestRequestResults=" + testRequestResults +
                 "\t, watches=" + watches +
                 "\t, averageLatency=" + averageLatency +
-                "\t, averageElapsedTime=" + averageElapsedTime +
+                "\t, meanTurnAroundTime=" + meanTurnAroundTime +
                 "\t, maxCapacity=" + maxCapacity +
                 "\t, averageSize=" + averageSize +
                 "\t, throughPut=" + throughPut +
-                "\t, endpointExecutionInfosAverage=" + endpointExecutionInfosAverage +
+                "\t, meanResponseTime=" + meanResponseTime +
+                "\t, meanResponseSize=" + meanResponseSize +
+                "\t, testCount=" + testCount +
                 "\t, path='" + path + '\'' +
                 "\t, method='" + method + '\'' +
                 '}';

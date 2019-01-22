@@ -7,7 +7,6 @@ import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Assertions.JSON.JSON
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Assertions.Response.ResponseAssertion;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Assertions.Size.SizeAssertion;
 import de.hsos.bachelorarbeit.nh.jmeter.annotation.Response.Response;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.maven.plugin.logging.Log;
 
 import java.io.BufferedWriter;
@@ -17,8 +16,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -58,7 +55,7 @@ public class JMeterUtil {
     }
 
     private void createCapacityTests(String defaultPath){
-        this.createTestPerEndpoint(defaultPath, "capacityTests", "10");
+        this.createTestPerEndpoint(defaultPath, "capacityTests", "100");
     }
 
     private void createTestPerEndpoint(String defaultPath, String testName, String loops){

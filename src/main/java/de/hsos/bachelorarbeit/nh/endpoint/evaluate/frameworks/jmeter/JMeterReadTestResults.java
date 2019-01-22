@@ -99,9 +99,7 @@ public class JMeterReadTestResults extends ReadTestsResults {
         if(latency.isPresent()) testRequestResults.setLatency(new Double(latency.get()));
 
         Optional<String> elapsedTime = this.getNodeValue(namedNodeMap, "t"); //             t	Elapsed time (milliseconds)
-        if(elapsedTime.isPresent()) testRequestResults.setElapsedTime(new Double(elapsedTime.get()));
-
-
+        if(elapsedTime.isPresent()) testRequestResults.setTurnAroundTime(new Double(elapsedTime.get()));
 
         Optional<String> requestCount = this.getNodeValue(namedNodeMap, "sc"); //            sc	Sample count (1, unless multiple samples are aggregated)
         if(requestCount.isPresent()) testRequestResults.setRequestCount(new Integer(requestCount.get()));
