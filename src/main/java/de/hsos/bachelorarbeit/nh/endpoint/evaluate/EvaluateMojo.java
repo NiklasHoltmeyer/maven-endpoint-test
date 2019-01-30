@@ -1,5 +1,6 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate;
 
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.QualityResults.EvaluateResult;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResultGroup;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.frameworks.jmeter.JMeterReadTestResults;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases.*;
@@ -35,15 +36,16 @@ public class EvaluateMojo  extends AbstractMojo{
             TestResultGroup result = collectResults(jsonUtil, reportPath);
 
             String reportP =Paths.get(destination, "/reports/").toAbsolutePath().toString();
-            String resultPath = Paths.get(reportP ,"groupedResults.json").toAbsolutePath().toString();
-            String resultAggregatedPath = Paths.get(reportP ,"groupedResults-aggregated.json").toAbsolutePath().toString();
+            String detailedPath = Paths.get(reportP ,"result-detailed.json").toAbsolutePath().toString();
+            String resultPath = Paths.get(reportP ,"result.json").toAbsolutePath().toString();
+
 
             Evaluate evaluate = new Evaluate();
-            evaluate.evalute(result);
+            EvaluateResult evaluateResult = evaluate.evalute(result);
 
-            jsonUtil.writeJson(result, resultPath, true);
-            result.nullRedundant();
-            jsonUtil.writeJson(result, resultAggregatedPath, true);
+            jsonUtil.writeJson(evaluateResult, detailedPath, true);
+            evaluateResult.nullDetails();
+            jsonUtil.writeJson(evaluateResult, resultPath, true);
         }catch(Exception e){
             e.printStackTrace();
             throw new MojoFailureException(e.toString());

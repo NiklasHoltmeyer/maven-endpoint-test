@@ -1,53 +1,172 @@
 package de.hsos.bachelorarbeit.nh.endpoint.evaluate.usecases;
 
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.QualityResults.EvaluateResult;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.QualityResults.Performance.CapacityResult;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.QualityResults.Performance.PerformanceResult;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.QualityResults.Performance.ResourceUtilizationResult;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.QualityResults.Performance.TimeBehaviorResult;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.QualityResults.Reliability.ReliabilityResult;
+import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.QualityResults.Reliability.TestingStatusResult;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResult;
 import de.hsos.bachelorarbeit.nh.endpoint.evaluate.entities.TestResultGroup;
+import de.hsos.bachelorarbeit.nh.endpoint.test.entities.WatchResult;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Test.CodeCoverage.Coverage;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Test.UnitTest.UnitTestGroupedResult;
 import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Test.UnitTest.UnitTestResult;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Unit;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.WatchResultGroup;
+import de.hsos.bachelorarbeit.nh.endpoint.util.entities.coverage.CoverageResultAggregated;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Evaluate {
-    /*
-            List<TestResult> resultGroups;
-                WatchResultGroup watches;
-                    WatchResult<Double> cpu;
-                    WatchResult<Double> memory;
-                Double averageLatency;
-                Double meanTurnAroundTime;
-                Unit<String> maxCapacity;
-                Unit<Double> averageSize;
-                Unit<Double> throughPut;
-                Unit<Long> meanResponseTime;
-                Unit<String> meanResponseSize;
-            UnitTestGroupedResult unitTestResults;
-                CodeCoverageResult summedCodeCoverage = new CodeCoverageResult();
-                    transient String className;
-                    Coverage instruction;
-                    Coverage branch;
-                    Coverage line;
-                    Coverage complexity;
-                    Coverage method;
-                    Coverage clazz;
-            CoverageResultAggregated aggregatedEndpointCoverage;
-                int totalEndpoints;
-                int testedEndpoints;
-                int totalTests;
+    public EvaluateResult evalute(TestResultGroup testResultGroup){
+        EvaluateResult evaluateResult = new EvaluateResult();
+        evaluateResult.setTestResultGroup(testResultGroup);
 
-    ---nicht genutzt---
-        TestResultGroup
-            => UnitTestGroupedResult
-                => CodeCoverageResult
-                => List<UnitTestResult> results; => codecoverage
-     */
+        this.calculateReliability(evaluateResult, testResultGroup);
+        this.calculatePerformance(evaluateResult, testResultGroup);
+        return evaluateResult;
+    }
 
-    public void evalute(TestResultGroup testResultGroup){
+    @SuppressWarnings("Duplicates")
+    //todo ^^ spaeter
+    private void calculatePerformance(EvaluateResult evaluateResult, TestResultGroup testResultGroup) {
+        PerformanceResult performanceResult = evaluateResult.getPerformance();
+        CapacityResult capacityResult = performanceResult.getCapacity();
+
+        this.calculateTimeBehavior(performanceResult, testResultGroup);
+        this.calcuateResourceUtilization(performanceResult, testResultGroup);
+        this.calcuateCapacity(capacityResult, testResultGroup);
+    }
+
+    private void calcuateCapacity(CapacityResult capacityResult, TestResultGroup testResultGroup) {
+        List<TestResult> testResults = testResultGroup.getResultGroups();
+        double sum = 0.0;
+        int count = 0;
+        for(TestResult testResult : testResults){
+            if(testResult!=null){
+                Unit<String> v = testResult.getMaxCapacity();
+                if(v!=null && v.getValue()!=null && !v.getValue().isEmpty()){
+                    try{
+                        double doubleV = Double.valueOf(v.getValue());
+                        sum += doubleV;
+                        ++count;
+                    }catch(NumberFormatException e){
+                        System.err.println("Couldnt parse (" + v.getValue() + ") to double");
+                    }
+                }
+            }
+        }
+        if(count != 0) capacityResult.getCapacity().setValue(sum/count);
+    }
+
+    @SuppressWarnings("Duplicates")
+    private void calcuateResourceUtilization(PerformanceResult performanceResult, TestResultGroup testResultGroup){
+        ResourceUtilizationResult resourceUtilizationResult = performanceResult.getResourceUtilization();
+        List<TestResult> testResults = testResultGroup.getResultGroups();
+        double sumCPU = 0.0;
+        int countCPU = 0;
+        double sumMEM = 0.0;
+        int countMEM = 0;
+
+        for(TestResult testResult : testResults){
+            if(testResult!=null){
+                WatchResultGroup watchResultGroup = testResult.getWatches();
+                if(watchResultGroup!=null){
+                    WatchResult<Double> cpuW = watchResultGroup.getCpu();
+                    WatchResult<Double> memW = watchResultGroup.getMemory();
+                    if(cpuW != null && cpuW.getAverage() != null && cpuW.getAverage().getValue() != null){
+                        Double avg = cpuW.getAverage().getValue();
+                        sumCPU += avg;
+                        ++countCPU;
+                    }
+                    if(memW != null && memW.getAverage() != null && memW.getAverage().getValue() != null){
+                        Double avg = memW.getAverage().getValue();
+                        sumMEM += avg;
+                        ++countMEM;
+                    }
+                }
+            }
+        }
+
+        if(countMEM != 0) resourceUtilizationResult.getMeanMemoryUtilization().setValue(sumMEM/countMEM);
+        if(countCPU != 0) resourceUtilizationResult.getMeanProcessorUtilization().setValue(sumCPU/countCPU);
+    }
+
+    private void calculateTimeBehavior(PerformanceResult performanceResult, TestResultGroup testResultGroup){
+        List<TestResult> testResults = testResultGroup.getResultGroups();
+        TimeBehaviorResult timeBehaviorResult = performanceResult.getTimeBehavior();
+
+        Long sumMRT = 0L;
+        int mRTCount = 0;
+
+        Double sumMTT = 0.0;
+        int mTTCount = 0;
+
+        Double sumThroughPut = 0.0;
+        int throughPutCount = 0;
+
+        for(TestResult tr : testResults){
+            if(tr!=null){
+                Unit<Long> mrt = tr.getMeanResponseTime();
+                Double mtt = tr.getMeanTurnAroundTime();
+                Unit<Double> meanThroughPut = tr.getThroughPut();
+
+                if(mrt != null && mrt.getValue() != null){
+                    Long mrtValue = mrt.getValue();
+                    if(mrtValue!=null){
+                        sumMRT += mrtValue;
+                        ++mRTCount;
+                    }
+                }
+                if(mtt != null && !mtt.isNaN()){
+                    sumMTT += mtt;
+                    ++mTTCount;
+                }
+                if(meanThroughPut != null && meanThroughPut.getValue() != null){
+                    Double meanThroughPutValue = meanThroughPut.getValue();
+                    if(meanThroughPutValue!=null && !meanThroughPutValue.isNaN()){
+                        sumThroughPut += meanThroughPutValue;
+                        ++throughPutCount;
+                    }
+                }
+            }
+        }
+        if(mRTCount != 0)timeBehaviorResult.getMeanResponseTime().setValue(sumMRT/(double)mRTCount);
+        if(mTTCount != 0)timeBehaviorResult.getMeanTurnAroundTime().setValue(sumMTT/mTTCount);
+        if(throughPutCount != 0)timeBehaviorResult.getMeanThroughput().setValue(sumThroughPut/throughPutCount);
+    }
+
+    private void calculateReliability(EvaluateResult evaluateResult, TestResultGroup testResultGroup) {
+        ReliabilityResult reliabilityResult = evaluateResult.getReliability();
+        TestingStatusResult testingStatusResult = reliabilityResult.getTestingStatus();
         //Q-Rapids
         double passedTests = this.passedTestsCalculate(testResultGroup);
-        System.out.println("Passed = " + passedTests + "\n");
         double fastTestBuilds = this.fastTestBuildsCalculate(testResultGroup);
-        System.out.println("fastTestBuilds = " + fastTestBuilds + "\n");
+        double testCoverage = this.testCoverageCalculate(testResultGroup);
+        testingStatusResult.getPassedTest().setValue(passedTests);
+        testingStatusResult.getFastTestBuilds().setValue(fastTestBuilds);
+        testingStatusResult.getTestCoverage().setValue(testCoverage);
+
+        double testingStatusValue = (passedTests+fastTestBuilds+testCoverage)/3;
+        testingStatusResult.setValue(testingStatusValue);
+        reliabilityResult.updateValue();
+    }
+
+
+    private double testCoverageCalculate(TestResultGroup testResultGroup) {
+        CoverageResultAggregated coverageResultAggregated = testResultGroup.getAggregatedEndpointCoverage();
+        Coverage coverageResult = testResultGroup.getUnitTestResults().getSummedResult().getCodeCoverage().getLine();
+
+        int lines =  coverageResult.getCoverd() + coverageResult.getMissed();
+        double unitTestCoverage = (double) coverageResult.getCoverd() / lines;
+
+        double endpointTestCoverage = (double) coverageResultAggregated.getTestedEndpoints() / coverageResultAggregated.getTotalEndpoints();
+
+        double testCoverage = (unitTestCoverage + endpointTestCoverage) / 2;
+        return testCoverage;
     }
 
     double passedTestsCalculate(TestResultGroup testResultGroup){
@@ -120,3 +239,4 @@ public class Evaluate {
         return fastTests / (double) totalTests;
     }
 }
+
