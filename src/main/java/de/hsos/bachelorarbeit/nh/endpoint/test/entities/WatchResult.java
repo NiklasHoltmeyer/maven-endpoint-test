@@ -42,5 +42,11 @@ public class WatchResult<T> extends Result {
                 ", average=" + average +
                 '}';
     }
+
+    public void nullErrors(){
+        if(duration != null && (duration.getValue() == null)) duration = null;
+        if(firstValue != null && (firstValue.getValue() == null)) firstValue = null;
+        if(average != null && (average.getValue() == null)) average = null;
+    }
 }
 

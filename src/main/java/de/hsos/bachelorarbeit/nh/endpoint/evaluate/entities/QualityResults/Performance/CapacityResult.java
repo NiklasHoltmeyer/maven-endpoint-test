@@ -12,4 +12,8 @@ public class CapacityResult {
     public Unit<Double> getCapacity() {
         return capacity;
     }
+
+    public void nullErrors(){
+        if(capacity!=null && (capacity.getValue() == null||capacity.getValue().isNaN()||capacity.getValue().isInfinite()))  capacity = null;
+    }
 }

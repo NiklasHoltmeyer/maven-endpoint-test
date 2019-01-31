@@ -21,12 +21,31 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Evaluate {
-    public EvaluateResult evalute(TestResultGroup testResultGroup){
+    public EvaluateResult evaluate(TestResultGroup testResultGroup){
         EvaluateResult evaluateResult = new EvaluateResult();
         evaluateResult.setTestResultGroup(testResultGroup);
 
         this.calculateReliability(evaluateResult, testResultGroup);
         this.calculatePerformance(evaluateResult, testResultGroup);
+
+        Double performance = evaluateResult.getPerformance().getValue();
+        Double reliability = evaluateResult.getReliability().getValue();
+        Double v = null;
+        if(performance !=null && reliability !=null){
+            v = (performance+reliability)/2;
+        }else{
+            if(performance!=null){
+                v = performance;
+            }else if(reliability!=null) {
+                v = reliability;
+            }
+        }
+        evaluateResult.setValue(v);
+        return this.nullErrors(evaluateResult);
+    }
+
+    private EvaluateResult nullErrors(EvaluateResult evaluateResult){
+        evaluateResult.nullErrors();
         return evaluateResult;
     }
 
@@ -39,6 +58,113 @@ public class Evaluate {
         this.calculateTimeBehavior(performanceResult, testResultGroup);
         this.calcuateResourceUtilization(performanceResult, testResultGroup);
         this.calcuateCapacity(capacityResult, testResultGroup);
+
+        //adequecy
+        testResultGroup.initAdequacy(testResultGroup.isFirstTestBuild());
+
+        double sumAverageLatencyAdequacy = 0.0;
+        int countAverageLatencyAdequacy = 0;
+        double sumMeanTurnAroundTimeAdequacy = 0.0;
+        int countMeanTurnAroundTimeAdequacy = 0;
+        double sumMaxCapacityAdequacy = 0.0;
+        int countMaxCapacityAdequacy = 0;
+        double sumAverageSizeAdequacy = 0.0;
+        int countAverageSizeAdequacy = 0;
+        double sumThroughPutAdequacy = 0.0;
+        int countThroughPutAdequacy = 0;
+        double sumMeanResponseTimeAdequacy = 0.0;
+        int countMeanResponseTimeAdequacy = 0;
+        double sumMeanResponseSizeAdequacy = 0.0;
+        int countMeanResponseSizeAdequacy = 0;
+        double sumCpuUtilAdequacy = 0.0;
+        int countCpuUtilAdequacy = 0;
+        double sumMemUtilAdequacy = 0.0;
+        int countMemUtilAdequacy = 0;
+
+        for(TestResult tr : testResultGroup.getResultGroups()){
+            if(tr.getAverageLatencyAdequacy()!=null && !tr.getAverageLatencyAdequacy().isInfinite() && !tr.getAverageLatencyAdequacy().isNaN()){
+                double v = tr.getAverageLatencyAdequacy();
+                ++sumAverageLatencyAdequacy;
+                countAverageLatencyAdequacy += v;
+            }
+            if(tr.getMeanTurnAroundTimeAdequacy()!=null && !tr.getMeanTurnAroundTimeAdequacy().isInfinite() && !tr.getMeanTurnAroundTimeAdequacy().isNaN()){
+                double v = tr.getMeanTurnAroundTimeAdequacy();
+                ++sumMeanTurnAroundTimeAdequacy;
+                countMeanTurnAroundTimeAdequacy += v;
+            }
+            if(tr.getMaxCapacityAdequacy()!=null && !tr.getMaxCapacityAdequacy().isInfinite() && !tr.getMaxCapacityAdequacy().isNaN()){
+                double v = tr.getMaxCapacityAdequacy();
+                ++sumMaxCapacityAdequacy;
+                countMaxCapacityAdequacy += v;
+            }
+            if(tr.getAverageSizeAdequacy()!=null && !tr.getAverageSizeAdequacy().isInfinite() && !tr.getAverageSizeAdequacy().isNaN()){
+                double v = tr.getAverageSizeAdequacy();
+                ++sumAverageSizeAdequacy;
+                countAverageSizeAdequacy += v;
+            }
+            if(tr.getThroughPutAdequacy()!=null && !tr.getThroughPutAdequacy().isInfinite() && !tr.getThroughPutAdequacy().isNaN()){
+                double v = tr.getThroughPutAdequacy();
+                ++sumThroughPutAdequacy;
+                countThroughPutAdequacy += v;
+            }
+            if(tr.getMeanResponseTimeAdequacy()!=null && !tr.getMeanResponseTimeAdequacy().isInfinite() && !tr.getMeanResponseTimeAdequacy().isNaN()){
+                double v = tr.getMeanResponseTimeAdequacy();
+                ++sumMeanResponseTimeAdequacy;
+                countMeanResponseTimeAdequacy += v;
+            }
+            if(tr.getMeanResponseSizeAdequacy()!=null && !tr.getMeanResponseSizeAdequacy().isInfinite() && !tr.getMeanResponseSizeAdequacy().isNaN()){
+                double v = tr.getMeanResponseSizeAdequacy();
+                ++sumMeanResponseSizeAdequacy;
+                countMeanResponseSizeAdequacy += v;
+            }
+            if(tr.getCpuUtilAdequacy()!=null && !tr.getCpuUtilAdequacy().isInfinite() && !tr.getCpuUtilAdequacy().isNaN()){
+                double v = tr.getCpuUtilAdequacy();
+                ++sumCpuUtilAdequacy;
+                countCpuUtilAdequacy += v;
+            }
+            if(tr.getMemUtilAdequacy()!=null && !tr.getMemUtilAdequacy().isInfinite() && !tr.getMemUtilAdequacy().isNaN()){
+                double v = tr.getMemUtilAdequacy();
+                ++sumMemUtilAdequacy;
+                countMemUtilAdequacy += v;
+            }
+        }
+        double[] sums = {sumAverageLatencyAdequacy,
+                sumMeanTurnAroundTimeAdequacy,
+                sumMaxCapacityAdequacy,
+                sumAverageSizeAdequacy,
+                sumThroughPutAdequacy,
+                sumMeanResponseTimeAdequacy,
+                sumMeanResponseSizeAdequacy,
+                sumCpuUtilAdequacy,
+                sumMemUtilAdequacy
+        };
+
+        int[] counts = {
+                countAverageLatencyAdequacy,
+                countMeanTurnAroundTimeAdequacy,
+                countMaxCapacityAdequacy,
+                countAverageSizeAdequacy,
+                countThroughPutAdequacy,
+                countMeanResponseTimeAdequacy,
+                countMeanResponseSizeAdequacy,
+                countCpuUtilAdequacy,
+                countMemUtilAdequacy
+        };
+        int countCount = 0;
+        double sumSum = 0;
+
+        for(int i = 0; i < counts.length ; ++i){
+            int c = counts[i];
+            double d = sums[i];
+
+            if(c>0){
+                countCount +=c;
+                sumSum += d;
+            }
+        }
+
+        if(sumSum>0)performanceResult.setValue(countCount/sumSum);
+
     }
 
     private void calcuateCapacity(CapacityResult capacityResult, TestResultGroup testResultGroup) {
@@ -99,7 +225,7 @@ public class Evaluate {
         List<TestResult> testResults = testResultGroup.getResultGroups();
         TimeBehaviorResult timeBehaviorResult = performanceResult.getTimeBehavior();
 
-        Long sumMRT = 0L;
+        Double sumMRT = 0.0;
         int mRTCount = 0;
 
         Double sumMTT = 0.0;
@@ -114,19 +240,26 @@ public class Evaluate {
                 Double mtt = tr.getMeanTurnAroundTime();
                 Unit<Double> meanThroughPut = tr.getThroughPut();
 
+                Double mrtAdequecy = tr.getMeanResponseTimeAdequacy();
+                Double mttAdequecy = tr.getMeanTurnAroundTime();
+                Double meanThroughPutAdequecy = tr.getThroughPutAdequacy();
+
                 if(mrt != null && mrt.getValue() != null){
-                    Long mrtValue = mrt.getValue();
+                    Double mrtValue = (double)mrt.getValue();
+                    if(mrtAdequecy!=null && mrtAdequecy >0) mrtValue /= mrtAdequecy;
                     if(mrtValue!=null){
                         sumMRT += mrtValue;
                         ++mRTCount;
                     }
                 }
                 if(mtt != null && !mtt.isNaN()){
+                    if(mttAdequecy!=null&&mttAdequecy>0) mtt/=mttAdequecy;
                     sumMTT += mtt;
                     ++mTTCount;
                 }
                 if(meanThroughPut != null && meanThroughPut.getValue() != null){
                     Double meanThroughPutValue = meanThroughPut.getValue();
+                    if(meanThroughPutAdequecy!=null&&meanThroughPutAdequecy>0) meanThroughPutValue/=meanThroughPutAdequecy;
                     if(meanThroughPutValue!=null && !meanThroughPutValue.isNaN()){
                         sumThroughPut += meanThroughPutValue;
                         ++throughPutCount;
@@ -188,9 +321,6 @@ public class Evaluate {
         int totalTests = unitTests + endpointTests;
         int totalNonSuccess = unitTestErrors+unitTestFailures+unitTestSkipped + endpointFailedTests;
 
-        String t = "endpointTests= " + endpointTests + ", endpointFailedTests=" + endpointFailedTests + ", totalTests=" + totalTests + ", totalNonSuccess=" + totalNonSuccess;
-        System.out.println(t);
-
         if(totalTests==0) return 0.0;
         return (totalTests - totalNonSuccess) / (double) totalTests;
     }
@@ -231,9 +361,6 @@ public class Evaluate {
 
         int fastTests = fastUnitTests + fastEndpointTests;
         int totalTests = unitTests + endpointTests;
-
-        String t = "endpointTests= " + endpointTests + ", fastEndpointTests=" + fastEndpointTests + ", fastTests=" + fastTests + ", totalTests=" + totalTests;
-        System.out.println(t);
 
         if(totalTests == 0) return 0.0;
         return fastTests / (double) totalTests;

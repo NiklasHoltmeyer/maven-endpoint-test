@@ -23,4 +23,9 @@ public class ReliabilityResult {
     public void nullDetails(){
         this.testingStatus = null;
     }
+
+    public void nullErrors(){
+        if(testingStatus != null) testingStatus.nullErrors();
+        if(value != null && value.isNaN() || value.isInfinite()) value = null;
+    }
 }

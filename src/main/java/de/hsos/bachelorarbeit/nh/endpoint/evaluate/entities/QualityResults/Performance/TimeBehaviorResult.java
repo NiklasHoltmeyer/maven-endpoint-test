@@ -6,6 +6,7 @@ public class TimeBehaviorResult {
     Unit<Double> meanResponseTime;
     Unit<Double> meanTurnAroundTime;
     Unit<Double> meanThroughput;
+    Double value;
 
     public TimeBehaviorResult() {
         this.meanResponseTime = new Unit<>(Double.NaN, "AVG(ResponseTime)");
@@ -23,5 +24,18 @@ public class TimeBehaviorResult {
 
     public Unit<Double> getMeanThroughput() {
         return meanThroughput;
+    }
+    public void nullErrors(){
+        if(meanResponseTime!=null && (meanResponseTime.getValue() == null || meanResponseTime.getValue().isInfinite() || meanResponseTime.getValue().isNaN()))  meanResponseTime = null;
+        if(meanTurnAroundTime!=null && (meanTurnAroundTime.getValue() == null || meanTurnAroundTime.getValue().isInfinite() || meanTurnAroundTime.getValue().isNaN()))  meanTurnAroundTime = null;
+        if(meanThroughput!=null && (meanThroughput.getValue() == null || meanThroughput.getValue().isInfinite() || meanThroughput.getValue().isNaN()))  meanThroughput = null;
+    }
+
+    public Double getValue() {
+        return value;
+    }
+
+    public void setValue(Double value) {
+        this.value = value;
     }
 }

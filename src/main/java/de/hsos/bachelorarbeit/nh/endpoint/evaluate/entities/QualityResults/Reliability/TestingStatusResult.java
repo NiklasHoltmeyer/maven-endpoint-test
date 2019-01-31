@@ -33,4 +33,10 @@ public class TestingStatusResult {
     public void setValue(Double value) {
         this.value = value;
     }
+    public void nullErrors(){
+        if(passedTest!=null && (passedTest.getValue() == null||passedTest.getValue().isNaN() || passedTest.getValue().isInfinite()))  passedTest = null;
+        if(fastTestBuilds!=null && (fastTestBuilds.getValue() == null||fastTestBuilds.getValue().isNaN() || fastTestBuilds.getValue().isInfinite()))  fastTestBuilds = null;
+        if(testCoverage!=null && (testCoverage.getValue() == null||testCoverage.getValue().isNaN() || testCoverage.getValue().isInfinite()))  testCoverage = null;
+        if(value != null && value.isNaN() || value.isInfinite()) value = null;
+    }
 }

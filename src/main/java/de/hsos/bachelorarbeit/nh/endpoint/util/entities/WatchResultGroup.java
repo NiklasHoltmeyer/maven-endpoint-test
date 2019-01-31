@@ -58,4 +58,9 @@ public class WatchResultGroup extends Endpoint {
                 "\t, method='" + method + '\'' +
                 '}';
     }
+
+    public void nullErrors(){
+        if(cpu != null) cpu.nullErrors();
+        if(memory != null) memory.nullErrors();
+    }
 }

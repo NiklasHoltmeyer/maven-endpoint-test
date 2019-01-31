@@ -5,6 +5,7 @@ import de.hsos.bachelorarbeit.nh.endpoint.util.entities.Unit;
 public class ResourceUtilizationResult {
     Unit<Double> meanProcessorUtilization;
     Unit<Double> meanMemoryUtilization;
+    Double value;
 
     public ResourceUtilizationResult() {
         this.meanProcessorUtilization = new Unit<>(Double.NaN, "AVG(CPU-UTILIZATION)");
@@ -18,4 +19,12 @@ public class ResourceUtilizationResult {
     public Unit<Double> getMeanMemoryUtilization() {
         return meanMemoryUtilization;
     }
+
+    public void nullErrors(){
+        if(meanProcessorUtilization!=null && (meanProcessorUtilization.getValue() == null  || meanProcessorUtilization.getValue().isNaN() ||  meanProcessorUtilization.getValue().isInfinite()))  meanProcessorUtilization = null;
+        if(meanMemoryUtilization!=null && (meanMemoryUtilization.getValue() == null  ||  meanMemoryUtilization.getValue().isNaN()|| meanMemoryUtilization.getValue().isInfinite()))  meanMemoryUtilization = null;
+    }
+
+
 }
+

@@ -9,6 +9,8 @@ public class EvaluateResult{
     PerformanceResult performance;
     TestResultGroup testResultGroup;
 
+    Double value;
+
     public EvaluateResult() {
         this.reliability = new ReliabilityResult();
         this.performance = new PerformanceResult();
@@ -33,6 +35,23 @@ public class EvaluateResult{
     public void nullDetails() {
         this.testResultGroup = null;
         this.reliability.nullDetails();
+        this.nullErrors();
         //todo performance adeq. + nullen
+    }
+
+    public void nullErrors(){
+        if(reliability != null) reliability.nullErrors();
+        if(performance != null) performance.nullErrors();
+        if(testResultGroup != null){
+            testResultGroup.nullErrors();
+        }
+    }
+
+    public void setValue(Double value) {
+        this.value = value;
+    }
+
+    public Double getValue() {
+        return value;
     }
 }

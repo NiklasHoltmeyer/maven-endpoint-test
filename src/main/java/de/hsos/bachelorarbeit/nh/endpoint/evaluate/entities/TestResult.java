@@ -12,14 +12,28 @@ public class TestResult extends Endpoint{
     WatchResultGroup watches;
 
     Double averageLatency;
+    Double averageLatencyAdequacy;
+
     Double meanTurnAroundTime;
+    Double meanTurnAroundTimeAdequacy;
+
     Unit<String> maxCapacity;
+    Double maxCapacityAdequacy;
 
     Unit<Double> averageSize;
+    Double averageSizeAdequacy;
+
     Unit<Double> throughPut;
+    Double throughPutAdequacy;
 
     Unit<Long> meanResponseTime;
+    Double meanResponseTimeAdequacy;
+
     Unit<String> meanResponseSize;
+    Double meanResponseSizeAdequacy;
+
+    Double cpuUtilAdequacy;
+    Double memUtilAdequacy;
 
     Integer testCount = 0;
 
@@ -160,6 +174,30 @@ public class TestResult extends Endpoint{
         this.watches = watches;
     }
 
+    public void setMeanTurnAroundTimeAdequacy(Double meanTurnAroundTimeAdequacy) {
+        this.meanTurnAroundTimeAdequacy = meanTurnAroundTimeAdequacy;
+    }
+
+    public void setMeanResponseTimeAdequacy(Double meanResponseTimeAdequacy) {
+        this.meanResponseTimeAdequacy = meanResponseTimeAdequacy;
+    }
+
+    public void nullErrors(){
+        this.testRequestResults=null;
+
+        if(watches != null) watches.nullErrors();
+        if(testCount<0) testCount = null;
+
+        if(averageLatency == null || averageLatency < 0 || averageLatency.isNaN() || averageLatency.isInfinite()) averageLatency = null;
+        if(meanTurnAroundTime == null || meanTurnAroundTime < 0 || meanTurnAroundTime.isNaN() || meanTurnAroundTime.isInfinite()) meanTurnAroundTime = null;
+
+        if(averageSize != null && (averageSize.getValue() == null || averageSize.getValue().isNaN() || averageSize.getValue().isInfinite())) averageSize = null;
+        if(throughPut != null && (throughPut.getValue() == null || throughPut.getValue().isNaN() || throughPut.getValue().isInfinite())) throughPut = null;
+        if(meanResponseTime != null && (meanResponseTime.getValue()==null || meanResponseTime.getValue() < 0 )) meanResponseTime = null;
+        if(maxCapacity != null && (maxCapacity.getValue() == null || maxCapacity.getValue().isEmpty())) maxCapacity = null;
+        if(meanResponseSize != null && (meanResponseSize.getValue() == null || meanResponseSize.getValue().isEmpty())) meanResponseSize = null;
+    }
+
     @Override
     public String toString() {
         return "TestResult{" +
@@ -176,5 +214,69 @@ public class TestResult extends Endpoint{
                 "\t, path='" + path + '\'' +
                 "\t, method='" + method + '\'' +
                 '}';
+    }
+
+    public Double getAverageLatencyAdequacy() {
+        return averageLatencyAdequacy;
+    }
+
+    public void setAverageLatencyAdequacy(Double averageLatencyAdequacy) {
+        this.averageLatencyAdequacy = averageLatencyAdequacy;
+    }
+
+    public Double getMeanTurnAroundTimeAdequacy() {
+        return meanTurnAroundTimeAdequacy;
+    }
+
+    public Double getMaxCapacityAdequacy() {
+        return maxCapacityAdequacy;
+    }
+
+    public void setMaxCapacityAdequacy(Double maxCapacityAdequacy) {
+        this.maxCapacityAdequacy = maxCapacityAdequacy;
+    }
+
+    public Double getAverageSizeAdequacy() {
+        return averageSizeAdequacy;
+    }
+
+    public void setAverageSizeAdequacy(Double averageSizeAdequacy) {
+        this.averageSizeAdequacy = averageSizeAdequacy;
+    }
+
+    public Double getThroughPutAdequacy() {
+        return throughPutAdequacy;
+    }
+
+    public void setThroughPutAdequacy(Double throughPutAdequacy) {
+        this.throughPutAdequacy = throughPutAdequacy;
+    }
+
+    public Double getMeanResponseTimeAdequacy() {
+        return meanResponseTimeAdequacy;
+    }
+
+    public Double getMeanResponseSizeAdequacy() {
+        return meanResponseSizeAdequacy;
+    }
+
+    public void setMeanResponseSizeAdequacy(Double meanResponseSizeAdequacy) {
+        this.meanResponseSizeAdequacy = meanResponseSizeAdequacy;
+    }
+
+    public Double getCpuUtilAdequacy() {
+        return cpuUtilAdequacy;
+    }
+
+    public void setCpuUtilAdequacy(Double cpuUtilAdequacy) {
+        this.cpuUtilAdequacy = cpuUtilAdequacy;
+    }
+
+    public Double getMemUtilAdequacy() {
+        return memUtilAdequacy;
+    }
+
+    public void setMemUtilAdequacy(Double memUtilAdequacy) {
+        this.memUtilAdequacy = memUtilAdequacy;
     }
 }
