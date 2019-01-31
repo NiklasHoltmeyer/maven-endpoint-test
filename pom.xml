@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!--
-    <groupId>com.github.NiklasHoltmeyer</groupId>
+    <groupId>local.com.github.NiklasHoltmeyer</groupId>
     <artifactId>maven-endpoint-test</artifactId>
     -->
-    <groupId>local.com.github.NiklasHoltmeyer</groupId>
+    <groupId>com.github.NiklasHoltmeyer</groupId>
     <artifactId>maven-endpoint-test</artifactId>
 
     <version>0.0.7</version>
